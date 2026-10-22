@@ -1,18 +1,27 @@
-//
-//  SkipButton.swift
-//  TheLaunch
-//
-//  Created by deema bakhyer on 22/10/2026.
-//
-
 import SwiftUI
 
 struct SkipButton: View {
+    var action: (() -> Void)
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text("Skip")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color("Secondary-Text"))
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Color("Secondary-Text"))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
+            .background(Color("Primary-tan"))
+            .clipShape(Capsule())
+        }
     }
 }
 
 #Preview {
-    SkipButton()
+    SkipButton(action: {})
 }
