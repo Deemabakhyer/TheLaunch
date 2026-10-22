@@ -8,11 +8,11 @@ struct SkipButton: View {
             HStack(spacing: 4) {
                 Text("Skip")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color("Secondary-Text"))
+                    .foregroundColor(Color("Primary-Text"))
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(Color("Secondary-Text"))
+                    .foregroundColor(Color("Primary-Text"))
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 6)
