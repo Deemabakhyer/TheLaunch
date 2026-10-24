@@ -9,11 +9,10 @@ import SwiftUI
 struct SaveButton: View {
     // this code will connect the botton to other pages
     var action: () ->  Void
-    @State private var isTapped :Bool = false
+    var isEnabled:Bool = false
 
     var body: some View {
         Button("Save"){
-            isTapped = true
             action()
             }
         //.custom("Helvetica-Bold" لو نفس الي بسكتش
@@ -22,18 +21,16 @@ struct SaveButton: View {
         .frame(width: 344, height: 58)
         //frame color
         .background(
-            isTapped
-           ? Color(red: 65/255, green: 67/255, blue: 27/255)
-            :Color(red:157/255, green:155/255, blue:126/255))
+            isEnabled
+           ? Color("Primary-buttons")
+            :Color("Deactivated-buttons"))
         .foregroundColor(.white)
         .cornerRadius(36)
-        
+        .disabled(!isEnabled)
     }
 }
 #Preview {
-    VStack{
-        Spacer()
-    }
-    .padding()
-    SaveButton(action: {})
+    
+    SaveButton(action: {},
+               isEnabled:false)
 }
