@@ -7,16 +7,20 @@
 
 import SwiftUI
 
-struct buddyPage: View { // START buddyPage
+struct buddyPage: View {
+    // START buddyPage
 
-    var body: some View { // START body
+    var body: some View {
+        // START body
 
-        ZStack { // START ZStack
+        ZStack {
+            // START ZStack
 
             Color("Background-cream")
                 .ignoresSafeArea()
 
-            VStack { // START main VStack
+            VStack {
+                // START main VStack
 
                 Text("My Buddy")
                     .font(.system(size: 34))
@@ -36,7 +40,27 @@ struct buddyPage: View { // START buddyPage
 
                     Text("Stage 1 of 3")
                         .font(.system(size: 14))
-
+                    
+                    
+                    HStack(spacing:12){
+                        //we can change the pet color
+                        Image("Dusk")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width:70 ,height:70 )
+                            .frame(width: 157.72, height: 183.54)
+                            .background(Color("Primary-tan"))
+                            .cornerRadius(23)
+                        
+                        Image("Moss")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width:70 ,height:70 )
+                            .frame(width: 157.72, height: 183.54)
+                            .background(Color("Primary-tan"))
+                            .cornerRadius(23)
+                        
+                    }
                 } // END Buddy information
 
                 Spacer()
