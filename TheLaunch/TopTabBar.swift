@@ -20,13 +20,18 @@ struct RootView: View {
             Tab(TopTab.myTasks.rawValue,
                 systemImage: TopTab.myTasks.icon,
                 value: TopTab.myTasks) {
-                ContentView()
+                MyTasksView()
             }
 
             Tab(TopTab.today.rawValue,
                 systemImage: TopTab.today.icon,
                 value: TopTab.today) {
-                ContentView()
+                ZStack {
+                    Theme.background.ignoresSafeArea()
+                    Text("Today")
+                        .font(.title2)
+                        .foregroundStyle(Theme.mutedText)
+                }
             }
         }
         .tint(Color(red: 0.15, green: 0.30, blue: 0.15))
