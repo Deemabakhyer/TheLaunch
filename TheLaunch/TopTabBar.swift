@@ -34,7 +34,7 @@ struct RootView: View {
                 }
             }
         }
-        .tint(Color(red: 0.15, green: 0.30, blue: 0.15))
+        .tint(Color.oliveDark)
     }
 }
 #Preview {
