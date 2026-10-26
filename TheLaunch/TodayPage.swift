@@ -31,9 +31,11 @@ struct NewTaskButton: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: "plus")
+                    .foregroundStyle(Color.primaryText)
                     .font(.system(size: 22, weight: .light))
                     .frame(width: 62, height: 34)
                     .overlay(Capsule().stroke(Color(white: 0.25), lineWidth: 2))
+                    
                 Text("New Task")
                     .font(.system(size: 20))
                     .foregroundStyle(Color(white: 0.27))
@@ -174,25 +176,19 @@ struct FloatingTabBar: View {
 }
 
 struct TodayPage: View {
-    private let periods = ["Morning", "Afternoon", "Evening"]
-    @State private var selection = "Morning"
+    
+    @State private var selection: DayPeriod = .morning
     @State private var isExpanded = false
     @State private var tab: TopTab = .today
 
-    struct TaskItem: Identifiable {
-        let id = UUID()
-        let title: String
-        let note: String
-        let period: String
-        var isDone = false                      
-    }
+    
 
     @State private var tasks = [
-        TaskItem(title: "Work on App Design", note: "Draw the lo-fi on Paper", period: "Morning"),
-        TaskItem(title: "Plan the Week", note: "List top 3 goals", period: "Morning"),
-        TaskItem(title: "Reply to Emails", note: "Clear the inbox", period: "Morning"),
-        TaskItem(title: "Team Sync", note: "Share progress", period: "Afternoon"),
-        TaskItem(title: "Read", note: "20 pages", period: "Evening")
+        TaskItem(name: "Work on App Design", notes: "Draw the lo-fi on Paper", period: .morning, date: Date()),
+        TaskItem(name: "Plan the Week", notes: "List top 3 goals", period: .morning, date: Date()),
+        TaskItem(name: "Reply to Emails", notes: "Clear the inbox", period: .morning, date: Date()),
+        TaskItem(name: "Team Sync", notes: "Share progress", period: .afternoon, date: Date()),
+        TaskItem(name: "Read", notes: "20 pages", period: .evening, date: Date())
     ]
 
     private var currentTasks: [TaskItem] {
@@ -205,6 +201,20 @@ struct TodayPage: View {
             tasks[i].isDone.toggle()
         }
     }
+    private var segmentTitles: [String] {
+            DayPeriod.allCases.map(\.title)
+        }
+
+        private var segmentBinding: Binding<String> {
+            Binding(
+                get: { selection.title },
+                set: { newTitle in
+                    if let match = DayPeriod.allCases.first(where: { $0.title == newTitle }) {
+                        selection = match
+                    }
+                }
+            )
+        }
 
     var body: some View {
         ZStack {
@@ -213,7 +223,10 @@ struct TodayPage: View {
             VStack(alignment: .leading, spacing: 24) {
                 HeaderView()
 
-                BottomTapBar(titles: periods, selection: $selection)
+                BottomTapBar(
+                    titles: segmentTitles,
+                    selection: segmentBinding
+                )
 
                 NewTaskButton().padding(.leading, 4)
 
@@ -222,15 +235,15 @@ struct TodayPage: View {
                         if let first = currentTasks.first {
                             if isExpanded {
                                 ForEach(currentTasks) { task in
-                                    TaskCard(title: task.title,
-                                             subtitle: task.note,
+                                    TaskCard(title: task.name,
+                                             subtitle: task.notes,
                                              isDone: task.isDone,
                                              onToggle: { toggle(task) })
                                         .transition(.move(edge: .top).combined(with: .opacity))
                                 }
                             } else {
-                                TaskStackCard(title: first.title,
-                                              subtitle: first.note,
+                                TaskStackCard(title: first.name,
+                                              subtitle: first.notes,
                                               index: 1,
                                               total: currentTasks.count,
                                               isDone: first.isDone,
