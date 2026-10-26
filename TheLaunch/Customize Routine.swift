@@ -11,7 +11,7 @@ import SwiftUI
 struct RoutineTask: Identifiable {
     let id = UUID()
     let title: String
-    let icon: String        // SF Symbol، بدّله بأيقونتك من Assets لو عندك
+    let icon: String
 }
 
 struct RoutineSection: Identifiable {
@@ -39,7 +39,7 @@ let routineSections = [
 // MARK: - الصفحة
 struct CustomizeRoutine: View {
     @State private var selectedTasks: Set<UUID> = []
-    @State private var customTexts: [String: String] = [:]   // نص الـ Custom لكل قسم
+    @State private var customTexts: [String: String] = [:]
 
     private var hasSelection: Bool {
         !selectedTasks.isEmpty ||
@@ -48,13 +48,13 @@ struct CustomizeRoutine: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color(hex: "F8F3E1").ignoresSafeArea()
+            Color.cream.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
 
-                    // العنوان + Skip
-                    HStack(alignment: .top) {
+                    // Skip
+                    HStack {
                         Spacer()
                         Button {
                             print("Skip tapped")
@@ -64,20 +64,21 @@ struct CustomizeRoutine: View {
                                 Image(systemName: "chevron.right")
                             }
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(.black.opacity(0.7))
+                            .foregroundColor(Color(hex: "#000000"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color(hex: "E3DBBE").opacity(0.7))
+                            .background(Color.sand.opacity(0.7))
                             .clipShape(Capsule())
                         }
                     }
 
                     Text("Customize Routine")
                         .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(Color(hex: "#000000"))
                         .padding(.top, 4)
                     Text("You can change this later")
                         .font(.system(size: 17))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color(hex: "#605B5B"))
                         .padding(.top, 2)
 
                     // الأقسام
@@ -93,7 +94,6 @@ struct CustomizeRoutine: View {
                         .padding(.top, 24)
                     }
 
-                    // مساحة عشان زر Next ما يغطي آخر عنصر
                     Color.clear.frame(height: 100)
                 }
                 .padding(.horizontal, 20)
@@ -108,7 +108,7 @@ struct CustomizeRoutine: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 58)
-                    .background(hasSelection ? Color(hex: "41431B") : Color(hex: "9D9B7E"))
+                    .background(hasSelection ? Color.oliveDark : Color.khaki)
                     .clipShape(Capsule())
             }
             .disabled(!hasSelection)
@@ -118,7 +118,7 @@ struct CustomizeRoutine: View {
     }
 }
 
-// MARK: - قسم (Morning / Afternoon / Evening)
+// MARK: - قسم
 struct SectionView: View {
     let section: RoutineSection
     @Binding var selectedTasks: Set<UUID>
@@ -132,6 +132,7 @@ struct SectionView: View {
                 Text(section.title)
                     .font(.system(size: 18))
             }
+            .foregroundColor(Color(hex: "#000000"))
             .padding(.bottom, 4)
 
             ForEach(section.tasks) { task in
@@ -170,10 +171,10 @@ struct TaskRow: View {
                     .font(.system(size: 20))
             }
             .font(.system(size: 18))
-            .foregroundColor(Color(hex: "4A4A3A"))
+            .foregroundColor(Color(hex: "#4D4D4D"))
             .padding(.horizontal, 16)
             .frame(height: 46)
-            .background(Color(hex: "E3DBBE"))
+            .background(Color.sand)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -193,11 +194,10 @@ struct CustomRow: View {
                 .font(.system(size: 20))
         }
         .font(.system(size: 18))
-        .foregroundColor(Color(hex: "4A4A3A"))
-        .padding(.horizontal, 16)
+        .foregroundColor(Color(hex: "#4D4D4D"))        .padding(.horizontal, 16)
         .frame(height: 46)
         .overlay(
-            Capsule().stroke(Color(hex: "41431B"), lineWidth: 1)
+            Capsule().stroke(Color.oliveDark, lineWidth: 1)
         )
     }
 }

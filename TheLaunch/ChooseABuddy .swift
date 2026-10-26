@@ -7,20 +7,7 @@
 
 import SwiftUI
 
-
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let r = Double((int >> 16) & 0xFF) / 255
-        let g = Double((int >> 8) & 0xFF) / 255
-        let b = Double((int & 0xFF)) / 255
-        self.init(red: r, green: g, blue: b)
-    }
-}
-
-
+// MARK: - الموديل
 struct Buddy: Identifiable, Hashable {
     let id = UUID()
     let name: String
@@ -34,6 +21,7 @@ let buddies = [
     Buddy(name: "Night", imageName: "Night")
 ]
 
+// MARK: - الصفحة
 struct ChooseABuddy: View {
     @State private var selected: Buddy? = nil
 
@@ -44,20 +32,22 @@ struct ChooseABuddy: View {
 
     var body: some View {
         ZStack {
-            Color(hex: "F8F3E1").ignoresSafeArea()
+            Color.cream.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
 
+                // العنوان
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Choose a buddy")
                         .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.primaryText)
+                        .foregroundColor(Color(hex: "#000000"))
                     Text("You can change this later")
                         .font(.system(size: 18))
-                        .foregroundColor(.secondaryText)
+                        .foregroundColor(Color(hex: "#605B5B"))
                 }
                 .padding(.top, 20)
 
+                // الشبكة
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(buddies) { buddy in
                         BuddyCard(buddy: buddy, isSelected: selected == buddy)
@@ -68,6 +58,7 @@ struct ChooseABuddy: View {
 
                 Spacer()
 
+                // زر Next
                 Button {
                     print("Next tapped with \(selected?.name ?? "")")
                 } label: {
@@ -76,7 +67,7 @@ struct ChooseABuddy: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 58)
-                        .background(selected == nil ? Color(hex: "9D9B7E") : Color(hex: "41431B"))
+                        .background(selected == nil ? Color.khaki : Color.oliveDark)
                         .clipShape(Capsule())
                 }
                 .disabled(selected == nil)
@@ -87,6 +78,7 @@ struct ChooseABuddy: View {
     }
 }
 
+// MARK: - بطاقة الشخصية
 struct BuddyCard: View {
     let buddy: Buddy
     let isSelected: Bool
@@ -100,16 +92,16 @@ struct BuddyCard: View {
 
             Text(buddy.name)
                 .font(.system(size: 20, weight: .medium))
-                .foregroundColor(.primaryText)
+                .foregroundColor(Color(hex: "#000000"))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(Color.primaryTan)
+        .background(Color.sand)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay(
             RoundedRectangle(cornerRadius: 24)
-                .stroke(isSelected ? Color(hex: "41431B") : Color.gray.opacity(0.4),
-                        lineWidth: isSelected ? 4 : 1)
+                .stroke(isSelected ? Color.oliveDark : Color(hex: "#9D9B7E"),
+                        lineWidth: isSelected ? 4 : 1)                       
         )
         .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
     }
@@ -118,4 +110,3 @@ struct BuddyCard: View {
 #Preview {
     ChooseABuddy()
 }
-        
