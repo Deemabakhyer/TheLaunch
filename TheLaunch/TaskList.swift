@@ -30,9 +30,10 @@ enum DayPeriod: CaseIterable {
     }
 }
 
-struct TaskItem: Identifiable {
-    let id = UUID()
+struct TaskItem: Identifiable, Hashable {
+    var id = UUID()
     var name: String
+    var notes: String = ""
     var period: DayPeriod
     var date: Date
     var isDone: Bool = false
@@ -79,6 +80,14 @@ final class TaskStore: ObservableObject {
         guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         tasks[i].isDone.toggle()
     }
+    func add(_ task: TaskItem) { tasks.append(task) }
+
+    func update(_ task: TaskItem) {
+        guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        tasks[i] = task
+    }
+
+    func delete(_ task: TaskItem) { tasks.removeAll { $0.id == task.id } }
 }
 
 // MARK: - My Tasks
