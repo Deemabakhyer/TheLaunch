@@ -27,7 +27,7 @@ struct BottomTapBar: View {
                         .background {
                             if selection == title {
                                 Capsule()
-                                    .fill(Color(red: 0.72, green: 0.74, blue: 0.57))
+                                    .fill(Color.sage)
                             }
                         }
                         .contentShape(Capsule())
@@ -38,7 +38,7 @@ struct BottomTapBar: View {
         .padding(4)
         .background(
             Capsule()
-                .fill(Color(red: 0.79, green: 0.78, blue: 0.64))
+                .fill(Color.sand)
         )
         .frame(height: 50)
     }
