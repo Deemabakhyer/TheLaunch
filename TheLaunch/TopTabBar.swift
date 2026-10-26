@@ -1,3 +1,9 @@
+//
+//  TopTapBar.swift
+//  TheLaunch
+//
+//  Created by deema bakhyer on 25/10/2026.
+//
 import SwiftUI
 
 enum TopTab: String, CaseIterable, Hashable {
@@ -27,16 +33,17 @@ struct RootView: View {
                 systemImage: TopTab.today.icon,
                 value: TopTab.today) {
                 ZStack {
-                    Theme.background.ignoresSafeArea()
+                    Color.cream.ignoresSafeArea()
                     Text("Today")
                         .font(.title2)
-                        .foregroundStyle(Theme.mutedText)
+                        .foregroundStyle(Color.khaki)
                 }
             }
         }
         .tint(Color.oliveDark)
     }
 }
+
 #Preview {
     RootView()
 }

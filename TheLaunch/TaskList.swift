@@ -4,19 +4,9 @@
 //
 //  Created by deema bakhyer on 25/10/2026.
 //
-//
 
 import SwiftUI
 import Combine
-
-// MARK: - Theme
-
-enum Theme {
-    static let background = Color(red: 0.953, green: 0.937, blue: 0.867)
-    static let olive      = Color(red: 0.514, green: 0.549, blue: 0.329)
-    static let track      = Color(red: 0.827, green: 0.804, blue: 0.714)
-    static let mutedText  = Color(red: 0.45,  green: 0.45,  blue: 0.42)
-}
 
 // MARK: - Model
 
@@ -25,17 +15,17 @@ enum DayPeriod: CaseIterable {
 
     var title: String {
         switch self {
-        case .morning:   "Morning"
-        case .afternoon: "Afternoon"
-        case .evening:   "Evening"
+        case .morning:   return "Morning"
+        case .afternoon: return "Afternoon"
+        case .evening:   return "Evening"
         }
     }
 
     var icon: String {
         switch self {
-        case .morning:   "sun.max"
-        case .afternoon: "sunset"
-        case .evening:   "moon.fill"
+        case .morning:   return "sun.max"
+        case .afternoon: return "sunset"
+        case .evening:   return "moon.fill"
         }
     }
 }
@@ -55,7 +45,7 @@ final class TaskStore: ObservableObject {
     init() {
         let cal = Calendar.current
         let today = Date()
-        let yesterday = cal.date(byAdding: .day, value: -1, to: today)!
+        let yesterday = cal.date(byAdding: .day, value: -1, to: today) ?? today
 
         func make(_ name: String, _ period: DayPeriod, _ date: Date, done: Bool) -> TaskItem {
             TaskItem(name: name, period: period, date: date, isDone: done)
@@ -108,57 +98,51 @@ struct MyTasksView: View {
     private var displayedDate: Date {
         let cal = Calendar.current
         switch segment {
-        case .yesterday: return cal.date(byAdding: .day, value: -1, to: Date())!
-        case .today:     return Date()
-        case .scheduled: return selectedDate
+        case .yesterday:
+            return cal.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        case .today:
+            return Date()
+        case .scheduled:
+            return selectedDate
         }
+    }
+
+    private var segmentTitles: [String] {
+        TaskSegment.allCases.map { $0.rawValue }
+    }
+
+    private var segmentBinding: Binding<String> {
+        Binding<String>(
+            get: { segment.rawValue },
+            set: { segment = TaskSegment(rawValue: $0) ?? .today }
+        )
     }
 
     var body: some View {
         ZStack {
-            Theme.background.ignoresSafeArea()
+            Color.cream.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("My Tasks")
                         .font(.largeTitle.bold())
+                        .foregroundStyle(Color.black)
                         .padding(.top, 8)
 
                     BottomTapBar(
-                        titles: TaskSegment.allCases.map(\.rawValue),
-                        selection: Binding(
-                            get: { segment.rawValue },
-                            set: { segment = TaskSegment(rawValue: $0) ?? .today }
-                        )
+                        titles: segmentTitles,
+                        selection: segmentBinding
                     )
 
                     if segment == .scheduled {
-                        // Native calendar
-                        DatePicker(
-                            "Select date",
-                            selection: $selectedDate,
-                            displayedComponents: .date
-                        )
-                        .datePickerStyle(.graphical)
-                        .labelsHidden()
-                        .tint(Theme.olive)
-
-                        Divider().overlay(Theme.track)
-
-                        if !store.hasTasks(on: selectedDate) {
-                            Text("No Tasks Scheduled")
-                                .italic()
-                                .font(.callout)
-                                .foregroundStyle(Theme.olive)
-                                .frame(maxWidth: .infinity)
-                        }
+                        scheduledSection
                     }
 
                     ForEach(DayPeriod.allCases, id: \.self) { period in
                         PeriodSection(
                             period: period,
                             tasks: store.tasks(on: displayedDate, period: period),
-                            onToggle: store.toggle
+                            onToggle: { task in store.toggle(task) }
                         )
                     }
                 }
@@ -166,6 +150,29 @@ struct MyTasksView: View {
                 .padding(.bottom, 24)
             }
             .animation(.easeInOut(duration: 0.2), value: segment)
+        }
+    }
+
+    // Split out of `body` to keep the expression simple for the compiler
+    @ViewBuilder
+    private var scheduledSection: some View {
+        DatePicker(
+            "Select date",
+            selection: $selectedDate,
+            displayedComponents: .date
+        )
+        .datePickerStyle(.graphical)
+        .labelsHidden()
+        .tint(Color.oliveDark)
+
+        Divider().overlay(Color.sand)
+
+        if !store.hasTasks(on: selectedDate) {
+            Text("No Tasks Scheduled")
+                .italic()
+                .font(.callout)
+                .foregroundStyle(Color.khaki)
+                .frame(maxWidth: .infinity)
         }
     }
 }
@@ -181,10 +188,10 @@ struct PeriodSection: View {
         VStack(alignment: .leading, spacing: 10) {
             Label(period.title, systemImage: period.icon)
                 .font(.title3)
-                .foregroundStyle(.black)
+                .foregroundStyle(Color.black)
 
             ForEach(tasks) { task in
-                TaskRow(task: task) { onToggle(task) }
+                TaskRow(task: task, onToggle: { onToggle(task) })
             }
         }
     }
@@ -196,18 +203,30 @@ struct TaskRow: View {
     let task: TaskItem
     let onToggle: () -> Void
 
+    private var checkIcon: String {
+        task.isDone ? "checkmark.circle.fill" : "circle"
+    }
+
+    private var checkColor: Color {
+        task.isDone ? Color.oliveDark : Color.sage
+    }
+
+    private var checkButton: some View {
+        Button(action: onToggle) {
+            Image(systemName: checkIcon)
+                .font(.title2)
+                .foregroundStyle(checkColor)
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .buttonStyle(.plain)
+        .padding(.trailing, 24)
+    }
+
     var body: some View {
         TaskField(taskName: task.name)
             .strikethrough(task.isDone)
             .overlay(alignment: .trailing) {
-                Button(action: onToggle) {
-                    Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundStyle(task.isDone ? Theme.olive : Theme.olive.opacity(0.45))
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                .buttonStyle(.plain)
-                .padding(.trailing, 24)
+                checkButton
             }
             .animation(.easeInOut(duration: 0.2), value: task.isDone)
     }
@@ -216,5 +235,5 @@ struct TaskRow: View {
 // MARK: - Preview
 
 #Preview {
-    RootView()
+    MyTasksView()
 }
