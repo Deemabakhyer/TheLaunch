@@ -1,3 +1,9 @@
+//
+//  TopTapBar.swift
+//  TheLaunch
+//
+//  Created by deema bakhyer on 25/10/2026.
+//
 import SwiftUI
 
 enum TopTab: String, CaseIterable, Hashable {
@@ -6,8 +12,10 @@ enum TopTab: String, CaseIterable, Hashable {
 
     var icon: String {
         switch self {
-        case .myTasks: "list.clipboard"
-        case .today:   "list.bullet.rectangle"
+        case .myTasks:
+            "list.clipboard"
+        case .today:
+            "list.bullet.rectangle"
         }
     }
 }
@@ -17,21 +25,26 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $selection) {
-            Tab(TopTab.myTasks.rawValue,
+            Tab(
+                TopTab.myTasks.rawValue,
                 systemImage: TopTab.myTasks.icon,
-                value: TopTab.myTasks) {
-                ContentView()
+                value: TopTab.myTasks
+            ) {
+                Color.clear
             }
 
-            Tab(TopTab.today.rawValue,
+            Tab(
+                TopTab.today.rawValue,
                 systemImage: TopTab.today.icon,
-                value: TopTab.today) {
-                ContentView()
+                value: TopTab.today
+            ) {
+                Color.clear
             }
         }
         .tint(Color.oliveDark)
     }
 }
+
 #Preview {
     RootView()
 }
