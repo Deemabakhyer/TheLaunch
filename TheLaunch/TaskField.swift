@@ -4,20 +4,21 @@
 //
 //  Created by deema bakhyer on 22/10/2026.
 //
-
 import SwiftUI
 
-struct TaskField<Content: View>: View {
+struct TaskField: View {
 
-    let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
+    var title: String = ""
+    var icon: String? = nil
+    var isSelected: Bool = false
 
     var body: some View {
-        HStack {
-            content
+        HStack(spacing: 12) {
+            if let icon {
+                Image(systemName: icon)
+            }
+            Text(title)
+                .italic()
             Spacer()
         }
         .padding(.horizontal, 20)
@@ -28,9 +29,7 @@ struct TaskField<Content: View>: View {
 }
 
 #Preview {
-    TaskField {
-        Text("Task name").italic()
-    }
-    .frame(width: 340)
-    .padding()
+    TaskField()
+        .frame(width: 340)
+        .padding()
 }
