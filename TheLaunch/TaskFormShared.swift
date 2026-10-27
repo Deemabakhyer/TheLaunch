@@ -4,6 +4,7 @@
 //  It Uses:
 //    - AppColors.swift (Color + Color(hex:))
 //    - TaskList.swift  (TaskItem, DayPeriod)
+//    - BackButton.swift (team back button)
 //
 //   Done by Hadeel Awaji on 15/05/1448 AH,
 
@@ -126,17 +127,24 @@ struct TaskFormScreen<Footer: View>: View {
             .padding(.bottom, 20)
             .background(Color.cream)
         }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
+        // Own header: team BackButton + title. The system nav bar is hidden,
+        // so no glass circle and no second back button.
+        .toolbar(.hidden, for: .navigationBar)
+        .safeAreaInset(edge: .top) {
+            ZStack {
                 Text(title)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(Color.black)
+
+                HStack {
+                    BackButton()
+                    Spacer()
+                }
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 8)
+            .background(Color.cream)
         }
-        .tint(Color.black)
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
     }
 }
 
