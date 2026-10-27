@@ -19,7 +19,6 @@ struct EditTaskView: View {
         _draft = State(initialValue: TaskDraft(task))
     }
 
-    /// Enabled only when valid AND something actually changed.
     private var canSave: Bool {
         draft.isValid && draft != TaskDraft(task)
     }

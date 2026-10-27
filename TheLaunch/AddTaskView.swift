@@ -6,7 +6,7 @@ struct AddTaskView: View {
     var onSave: (TaskItem) -> Void
 
     @State private var draft = TaskDraft()
-    @Environment(\.dismiss) private var dismiss   // pops the page
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         TaskFormScreen(title: "Add Task", draft: $draft) {
@@ -20,7 +20,6 @@ struct AddTaskView: View {
 }
 
 // MARK: - Previews
-
 private struct AddPushHost: View {
     @State private var show = true
 
@@ -37,7 +36,7 @@ private struct AddPushHost: View {
 
 #Preview("Add – pushed page") { AddPushHost() }
 
-/// Mini version of the real flow: home list -> Add -> task shows up -> tap -> Edit.
+
 private struct TasksFlowDemo: View {
     @State private var tasks: [TaskItem] = []
     @State private var showAdd = false

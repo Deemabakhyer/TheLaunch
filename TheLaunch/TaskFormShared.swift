@@ -18,31 +18,27 @@ extension DayPeriod {
 }
 
 // MARK: - 2. Form state
-// A temporary copy of the task. The real TaskItem only changes when Save is tapped.
 
 struct TaskDraft: Equatable {
     static let notesLimit = 60
 
     var name = ""
     var notes = ""
-    var period: DayPeriod?      // nil until the user picks one
-    var date: Date?             // nil = "Today" chip selected
+    var period: DayPeriod?
+    var date: Date?
 
-    init() {}                   // Add: empty form
+    init() {}
 
-    init(_ task: TaskItem) {    // Edit: copy from an existing task
+    init(_ task: TaskItem) {
         name = task.name
         notes = task.notes
         period = task.period
         date = Calendar.current.isDateInToday(task.date) ? nil : task.date
     }
-
-    /// Save is enabled only when there is a name and a time of day.
     var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && period != nil
     }
 
-    /// Turns the form back into a real task. Edit passes the old id / isDone.
     func makeTask(id: UUID = UUID(), isDone: Bool = false) -> TaskItem {
         TaskItem(
             id: id,
@@ -55,10 +51,7 @@ struct TaskDraft: Equatable {
     }
 }
 
-// MARK: - 3. Styles
-
 extension View {
-    /// Text field look: light font, faded text, cream box with khaki border.
     func taskFieldStyle(fontSize: CGFloat) -> some View {
         self
             .font(.system(size: fontSize, weight: .light))
@@ -72,7 +65,6 @@ extension View {
             )
     }
 
-    /// Capsule chip for "Today" / "Pick date".
     func taskPillStyle(isSelected: Bool) -> some View {
         self
             .font(.system(size: 18, weight: .medium))
@@ -85,7 +77,6 @@ extension View {
     }
 }
 
-/// Placeholder text that matches the field style.
 private func fieldPrompt(_ text: String, size: CGFloat) -> Text {
     Text(text)
         .font(.system(size: size, weight: .light))
@@ -93,7 +84,6 @@ private func fieldPrompt(_ text: String, size: CGFloat) -> Text {
 }
 
 // MARK: - 4. Screen scaffold
-// Same layout for Add and Edit. Only the title and the bottom buttons (footer) differ.
 
 struct TaskFormScreen<Footer: View>: View {
     let title: String
@@ -276,7 +266,6 @@ private struct TaskPeriodButton: View {
 // MARK: - 7. Day (Today / Pick date)
 
 struct TaskDayPicker: View {
-    /// nil means "Today"
     @Binding var date: Date?
     @State private var isCalendarOpen = false   // screen-only state, so @State
 
@@ -311,7 +300,6 @@ struct TaskDayPicker: View {
             }
 
             if isCalendarOpen {
-                // DatePicker needs a non-optional Date, so we convert: nil shows today
                 DatePicker(
                     "",
                     selection: Binding(get: { date ?? Date() }, set: { date = $0 }),
