@@ -8,36 +8,52 @@
 import SwiftUI
 
 struct AllRoutinesDoneView: View {
-    // START AllRoutinesDoneView
+   
 
     @Environment(\.dismiss) private var dismiss
 
-    // the pet picture name from Assets
+   
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
+    
+    @ObservedObject private var progress = BuddyProgress.shared
+
+        private var buddyImageName: String {
+            if progress.stage == 2 {
+                return selectedBuddy + "Grown"
+            } else {
+                return selectedBuddy + "Young"
+            }
+        }
+
+        private var messageText: String {
+            if progress.stage == 3 {
+                return "Your Buddy\nis fully grown!"
+            } else {
+                return "Your Buddy\nis growing!"
+            }
+        }
 
     var body: some View {
-        // START body
+      
 
         ZStack {
-            // START ZStack
-
-            // same background as buddyPage
+            
             Color(red: 248/255, green: 243/255, blue: 225/255)
                 .ignoresSafeArea()
 
             VStack(spacing: 28) {
-                // START main VStack
+              
 
                 Spacer()
 
-                // title
+              
                 Text("ALL ROUTINES\nARE DONE!")
                     .font(.system(size: 30))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.black)
 
-                // pet picture with confetti
+                
                 ZStack {
                     ConfettiView()
 
@@ -59,10 +75,9 @@ struct AllRoutinesDoneView: View {
                 Spacer()
                 Spacer()
 
-            } // END main VStack
+            }
             .padding(.horizontal, 24)
 
-            // close button (X)
             .overlay(alignment: .topLeading) {
 
                 Button {
@@ -74,21 +89,21 @@ struct AllRoutinesDoneView: View {
                         .frame(width: 44, height: 44)
                         .background(Color.black.opacity(0.08))
                         .clipShape(Circle())
-                } // END Button
+                }
                 .buttonStyle(.plain)
                // .padding(.leading, 16)
                 .padding(.top, 16)
 
-            } // END close button overlay
+            }
 
-        } // END ZStack
+        }
 
-    } // END body
+    }
 
-} // END AllRoutinesDoneView
+}
 
 
-// START ConfettiView
+
 struct ConfettiPiece {
     let x: CGFloat
     let y: CGFloat
@@ -156,7 +171,7 @@ struct ConfettiView: View {
     }
 }
 
-// the wavy line shape
+
 struct SquigglePath: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -174,7 +189,7 @@ struct SquigglePath: Shape {
         return path
     }
 }
-// END ConfettiView
+
 
 
 #Preview {
