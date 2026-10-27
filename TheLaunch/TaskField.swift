@@ -16,13 +16,12 @@ struct TaskField: View {
             Text(taskName)
                 .italic()
                 .font(.body)
-                .foregroundStyle(Color(red: 0.3, green: 0.28, blue: 0.25))
             
             Spacer()
         }
         .padding(.horizontal, 20)
         .frame(height: 55)
-        .background(Color(red: 228/255, green: 219/255, blue: 187/255))
+        .background(Color.sand)
         .clipShape(RoundedRectangle(cornerRadius: 28))
     }
 }
