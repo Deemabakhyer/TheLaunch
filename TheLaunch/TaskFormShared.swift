@@ -1,20 +1,6 @@
 //  TaskFormShared.swift
 //  Pieces shared by AddTaskView and EditTaskView.
 //
-//  It Uses:
-//    - AppColors.swift  (Color + Color(hex:))
-//    - TaskList.swift   (TaskItem, DayPeriod)
-//    - BackButton.swift (team back button)
-//
-//  Contents:
-//    1. DayPeriod.formIcon   - form icons
-//    2. TaskDraft            - temporary copy of the task being edited
-//    3. Styles               - field + pill look
-//    4. TaskFormScreen       - page layout (header, scroll, bottom buttons)
-//    5. TaskInputCard        - name + notes
-//    6. TaskPeriodPicker     - morning / afternoon / evening
-//    7. TaskDayPicker        - today / pick date
-//
 //   Done by Hadeel Awaji on 15/05/1448 AH,
 
 import SwiftUI

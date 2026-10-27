@@ -1,9 +1,4 @@
-//
 //  EditTaskView.swift
-//  Present with .navigationDestination(item:) inside a NavigationStack.
-//
-//  Needs: TaskFormShared.swift, TaskList.swift (TaskItem)
-//         SaveChangesButton + DeleteButton added
 //   Done by Hadeel Awaji on 15/05/1448 AH,
 
 import SwiftUI
