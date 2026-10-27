@@ -74,4 +74,4 @@ private struct EditPushHost: View {
     }
 }
 
-#Preview("Edit – pushed page") { EditPushHost() }
+#Preview("Edit") { EditPushHost() }

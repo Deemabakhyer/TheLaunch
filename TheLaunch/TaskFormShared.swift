@@ -185,6 +185,8 @@ struct TaskInputCard: View {
                         .font(.system(size: 18, weight: .light))
                         .foregroundColor(.black.opacity(0.6))
                 )
+                .font(.system(size: 18, weight: .light))
+                .foregroundStyle(Color.black.opacity(0.6))
                 .taskFieldStyle()
             }
 
@@ -201,6 +203,8 @@ struct TaskInputCard: View {
                     .foregroundColor(.black.opacity(0.6)),
                     axis: .vertical
                 )
+                .font(.system(size: 14, weight: .light))
+                .foregroundStyle(Color.black.opacity(0.6))
                 .lineLimit(3...5)
                 .taskFieldStyle()
                 .onChange(of: notes) { _, newValue in
