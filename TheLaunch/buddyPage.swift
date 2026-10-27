@@ -154,7 +154,7 @@ struct buddyPage: View {
             }
 
 
-           
+          // BUTTON
             VStack {
                 HStack {
                     Button {
