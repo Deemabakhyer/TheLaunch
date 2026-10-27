@@ -67,7 +67,7 @@ struct CustomizeRoutine: View {
                             .foregroundColor(Color(hex: "#000000"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color.sand.opacity(0.7))
+                            .background(Color.sand.opacity(0.3))
                             .clipShape(Capsule())
                         }
                     }
@@ -136,48 +136,27 @@ struct SectionView: View {
             .padding(.bottom, 4)
 
             ForEach(section.tasks) { task in
-                TaskRow(
-                    task: task,
-                    isSelected: selectedTasks.contains(task.id)
-                ) {
+                Button {
                     if selectedTasks.contains(task.id) {
                         selectedTasks.remove(task.id)
                     } else {
                         selectedTasks.insert(task.id)
                     }
+                } label: {
+                    TaskField(
+                        title: task.title,
+                        icon: task.icon,
+                        isSelected: selectedTasks.contains(task.id),
+                        showsToggle: true
+                    )
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: "#4D4D4D"))
                 }
+                .buttonStyle(.plain)
             }
 
             CustomRow(text: $customText)
         }
-    }
-}
-
-// MARK: - صف مهمة
-struct TaskRow: View {
-    let task: RoutineTask
-    let isSelected: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                Image(systemName: task.icon)
-                    .frame(width: 24)
-                Text(task.title)
-                    .italic()
-                Spacer()
-                Image(systemName: isSelected ? "checkmark.square.fill" : "plus.square")
-                    .font(.system(size: 20))
-            }
-            .font(.system(size: 18))
-            .foregroundColor(Color(hex: "#4D4D4D"))
-            .padding(.horizontal, 16)
-            .frame(height: 46)
-            .background(Color.sand)
-            .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -193,11 +172,13 @@ struct CustomRow: View {
             Image(systemName: text.isEmpty ? "plus.square" : "checkmark.square.fill")
                 .font(.system(size: 20))
         }
-        .font(.system(size: 18))
-        .foregroundColor(Color(hex: "#4D4D4D"))        .padding(.horizontal, 16)
-        .frame(height: 46)
+        .font(.system(size: 20))
+        .foregroundColor(Color(hex: "#4D4D4D"))
+        .padding(.horizontal, 20)
+        .frame(height: 55)
         .overlay(
-            Capsule().stroke(Color.oliveDark, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(Color.oliveDark, lineWidth: 1)
         )
     }
 }
