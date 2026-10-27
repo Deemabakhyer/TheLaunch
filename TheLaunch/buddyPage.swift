@@ -131,7 +131,7 @@ struct buddyPage: View {
                                             lineWidth: selectedBuddy == buddy ? 3 : 0
                                         )
                                 )
-                                // card shadow
+                                
                                 .shadow(
                                     color: .black.opacity(0.25),
                                     radius: 8,
