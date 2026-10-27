@@ -8,41 +8,36 @@
 import SwiftUI
 
 struct AllRoutinesDoneView: View {
-   
 
     @Environment(\.dismiss) private var dismiss
 
-   
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
+    
+//new line to make the pet progress appear
     
     @ObservedObject private var progress = BuddyProgress.shared
 
-        private var buddyImageName: String {
-            if progress.stage == 2 {
-                return selectedBuddy + "Grown"
-            } else {
-                return selectedBuddy + "Young"
-            }
-        }
-
-        private var messageText: String {
-            if progress.stage == 3 {
-                return "Your Buddy\nis fully grown!"
-            } else {
-                return "Your Buddy\nis growing!"
-            }
-        }
-
+    // tochange the level
+    private var buddyImageName: String {
+           if progress.stage == 3 {
+               return selectedBuddy + "Grown"
+           } else {
+               return selectedBuddy + "Young"
+           }
+       }
+    
     var body: some View {
-      
+        
 
         ZStack {
+            
+
             
             Color(red: 248/255, green: 243/255, blue: 225/255)
                 .ignoresSafeArea()
 
             VStack(spacing: 28) {
-              
+                
 
                 Spacer()
 
@@ -53,31 +48,34 @@ struct AllRoutinesDoneView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.black)
 
-                
                 ZStack {
+                    
                     ConfettiView()
-
-                    Image(selectedBuddy)
-
+                    
+                    Image(buddyImageName)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200, height: 240)
                 }
                 .frame(width: 260, height: 240)
 
-                // message
-                Text("Your Buddy\nis fully grown!")
-                    .font(.system(size: 28))
-                    .fontWeight(.medium)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.black)
+                
+                Text( progress.stage == 3
+                      ? "Your Buddy\nis fully grown!"
+                      : "Your Buddy\nis growing!"
+                                )
+                     .font(.system(size: 28))
+                     .fontWeight(.medium)
+                     .multilineTextAlignment(.center)
+                     .foregroundStyle(.black)
 
                 Spacer()
                 Spacer()
 
-            }
+            } // END main VStack
             .padding(.horizontal, 24)
 
+            // close button (X)
             .overlay(alignment: .topLeading) {
 
                 Button {
@@ -89,7 +87,7 @@ struct AllRoutinesDoneView: View {
                         .frame(width: 44, height: 44)
                         .background(Color.black.opacity(0.08))
                         .clipShape(Circle())
-                }
+                } // END Button
                 .buttonStyle(.plain)
                // .padding(.leading, 16)
                 .padding(.top, 16)
@@ -101,7 +99,6 @@ struct AllRoutinesDoneView: View {
     }
 
 }
-
 
 
 struct ConfettiPiece {
@@ -171,7 +168,6 @@ struct ConfettiView: View {
     }
 }
 
-
 struct SquigglePath: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -195,3 +191,4 @@ struct SquigglePath: Shape {
 #Preview {
     AllRoutinesDoneView()
 }
+
