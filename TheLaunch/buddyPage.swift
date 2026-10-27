@@ -7,30 +7,42 @@
 
 
 import SwiftUI
+// observe changes in data
 import Combine
 
+// BodyPage Appearance
 struct buddyPage: View {
    
 
-
+// save the selected buddy
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
    
 
-    
+    // pet progress already connected to the code in the buttom
+    //observes changes in data and tells SwiftUI to update the UI.
     @ObservedObject private var progress = BuddyProgress.shared
 
+    // save list of buddies
     private let buddies = ["Dusk", "Moss", "Sand", "Night"]
-
+    
+    // for colores
+    //envirounment will call info or action
+    @Environment(\.colorScheme) private var colorScheme
+    
+    // BACK BUTTON   activation
+    @Environment(\.dismiss) private var dismiss
+    
+    
     var body: some View {
        
 
         ZStack {
            
 
-            Color(red: 248/255, green: 243/255, blue: 225/255)
-                .ignoresSafeArea()
+            (colorScheme == .dark ? Color.oliveDark : Color.cream)
+                 .ignoresSafeArea()
 
-
+// body dispaly
             VStack {
                
 
@@ -39,7 +51,8 @@ struct buddyPage: View {
                 Text("My Buddy")
                     .font(.system(size: 34))
                     .fontWeight(.bold)
-                    .foregroundColor(Color(.black))
+                    .foregroundColor(.primary)
+
 
                 
                 Image(progress.imageName(for: selectedBuddy))
@@ -61,32 +74,32 @@ struct buddyPage: View {
 
                         .font(.system(size: 20))
                         .fontWeight(.bold)
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.primary)
 
                     Text("Stage \(progress.stage) of 3")
                         .font(.system(size: 14))
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.primary)
                 }
 
                 // test button to be removed
-                Button("Test: next day") {
-                    progress.completeDay()
-                }
-                .font(.system(size: 14))
-                .foregroundStyle(.black)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.6))
-                .cornerRadius(12)
+//                Button("Test: next day") {
+//                    progress.completeDay()
+//                }
+//                .font(.system(size: 14))
+//                .foregroundStyle(.primary)
+//                .padding(.horizontal, 16)
+//                .padding(.vertical, 8)
+//                .background(Color.khaki.opacity(0.3))
+//                .cornerRadius(12)
 
 
 
                 Spacer()
-
+// Change body display
                 Text("Change Buddy")
                     .font(.system(size: 15))
                     .fontWeight(.regular)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading,20)
 
@@ -98,7 +111,8 @@ struct buddyPage: View {
 
                     HStack(spacing:12){
 
-                       
+                       // choose the pet button already activated
+                        // Create a separate selectable card for each Buddy
                         ForEach(buddies, id: \.self) { buddy in
 
                             Button {
@@ -117,17 +131,18 @@ struct buddyPage: View {
                                     Text(buddy)
                                         .font(.system(size: 20))
                                         .fontWeight(.medium)
-                                        .foregroundStyle(.black)
+                                        .foregroundStyle(Color.oliveDark)
+
                                 }
                                
                                 .frame(width: 157.72, height: 183.54)
-                                .background(Color("Primary-tan"))
+                                .background(Color.sand)
                                 .cornerRadius(23)
-                               
+                               // the cosen card will have olive green frame
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 23)
                                         .strokeBorder(
-                                            Color(red: 65/255, green: 67/255, blue: 27/255),
+                                            Color.oliveDark,
                                             lineWidth: selectedBuddy == buddy ? 3 : 0
                                         )
                                 )
@@ -154,18 +169,20 @@ struct buddyPage: View {
             }
 
 
-          // BUTTON
-            VStack {
-                HStack {
-                    Button {
-                       
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.black)
-                            .frame(width: 44, height: 44)
+          // BACK BUTTON to be connected to todays task page
+        VStack {
+            HStack {
+            Button {
+                // the action here
+                dismiss()
+                
+            } label: {
+            Image(systemName: "chevron.left")
+            .font(.system(size: 20, weight: .semibold))
+            .foregroundColor(.primary)
+            .frame(width: 44, height: 44)
                     }
-                    .buttonStyle(.plain)
+            .buttonStyle(.plain)
 
                     Spacer()
                 }
@@ -184,12 +201,13 @@ struct buddyPage: View {
 
 
 
-
+// Buddy progress logic
 @MainActor
+// ObservableObject makes the UI refresh
 class BuddyProgress: ObservableObject {
 
     static let shared = BuddyProgress()
-
+// notify ObservableObject there is changes
     @Published var stage: Int = UserDefaults.standard.integer(forKey: "buddyStage") == 0
         ? 1
         : UserDefaults.standard.integer(forKey: "buddyStage") {

@@ -2,22 +2,24 @@
 //  AllRoutinesDoneView.swift
 //  TheLaunch
 //
-//  Created by Haneen  on 26/10/2026.
-//
+//  Created by Haneen  on 26/10/2026
 
 import SwiftUI
 
+// TO BE CONNECTED TO ALL TASK PAGE  AND DAILY ROUTINE WHEN ALLDONE
 struct AllRoutinesDoneView: View {
-
+    
+// to close the page
     @Environment(\.dismiss) private var dismiss
-
+// save buddy name
+// GET THE SELECTDE BUDDY FROM BUDY PAGE "PARTIALLY CONNECTED "
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
     
-//new line to make the pet progress appear
-    
+// make the pet progress changes
+// Buddy's growth stage from BuddyProgress.swift
     @ObservedObject private var progress = BuddyProgress.shared
 
-    // tochange the level
+    // to change the level
     private var buddyImageName: String {
            if progress.stage == 3 {
                return selectedBuddy + "Grown"
@@ -26,6 +28,10 @@ struct AllRoutinesDoneView: View {
            }
        }
     
+    //for colores = support light and dark mode
+    @Environment(\.colorScheme) private var colorScheme
+
+    
     var body: some View {
         
 
@@ -33,7 +39,8 @@ struct AllRoutinesDoneView: View {
             
 
             
-            Color(red: 248/255, green: 243/255, blue: 225/255)
+            (colorScheme == .dark ? Color.oliveDark : Color.cream)
+//make the color spread
                 .ignoresSafeArea()
 
             VStack(spacing: 28) {
@@ -48,6 +55,7 @@ struct AllRoutinesDoneView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.black)
 
+                // Pet picture and Text
                 ZStack {
                     
                     ConfettiView()
@@ -67,7 +75,7 @@ struct AllRoutinesDoneView: View {
                      .font(.system(size: 28))
                      .fontWeight(.medium)
                      .multilineTextAlignment(.center)
-                     .foregroundStyle(.black)
+                     .foregroundStyle(.primary)
 
                 Spacer()
                 Spacer()
@@ -75,17 +83,21 @@ struct AllRoutinesDoneView: View {
             } // END main VStack
             .padding(.horizontal, 24)
 
-            // close button (X)
+            // close button (X) to be connected to All tasks page
+            // position
             .overlay(alignment: .topLeading) {
-
+          // button action
                 Button {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
-                        .background(Color.black.opacity(0.08))
+                  //  OPACITY OF THE X BUTTON
+                      // .background(Color.black.opacity(0.08))
+                    // to be checked
+                        .background(Color.khaki.opacity(0.15))
                         .clipShape(Circle())
                 } // END Button
                 .buttonStyle(.plain)
@@ -109,11 +121,15 @@ struct ConfettiPiece {
     let rotation: Double
 }
 
+
+
+// Confetti
 struct ConfettiView: View {
 
-    let orange = Color(red: 0.96, green: 0.66, blue: 0.23)
-    let teal   = Color(red: 0.31, green: 0.76, blue: 0.79)
-    let pink   = Color(red: 0.91, green: 0.44, blue: 0.48)
+  
+    let orange = Color.confettiOrange
+    let teal   = Color.confettiTeal
+    let pink   = Color.confettiPink
 
     // x, y = position from the top-left corner of the area
     var pieces: [ConfettiPiece] {
