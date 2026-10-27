@@ -7,16 +7,17 @@
 
 import SwiftUI
 
-struct TaskField: View {
-    
-    var taskName: String = "Task name"
-    
+struct TaskField<Content: View>: View {
+
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
     var body: some View {
         HStack {
-            Text(taskName)
-                .italic()
-                .font(.body)
-            
+            content
             Spacer()
         }
         .padding(.horizontal, 20)
@@ -27,7 +28,9 @@ struct TaskField: View {
 }
 
 #Preview {
-    TaskField()
-        .frame(width: 340)
-        .padding()
+    TaskField {
+        Text("Task name").italic()
+    }
+    .frame(width: 340)
+    .padding()
 }
