@@ -236,7 +236,7 @@ struct TaskRow: View {
     }
 
     var body: some View {
-        TaskField(taskName: task.name)
+        TaskField(title: task.name)
             .strikethrough(task.isDone)
             .overlay(alignment: .trailing) {
                 checkButton

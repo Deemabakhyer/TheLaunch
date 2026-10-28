@@ -136,7 +136,7 @@ struct SectionView: View {
             .padding(.bottom, 4)
 
             ForEach(section.tasks) { task in
-                TaskRow(
+                RoutineTaskRow(
                     task: task,
                     isSelected: selectedTasks.contains(task.id)
                 ) {
@@ -154,7 +154,7 @@ struct SectionView: View {
 }
 
 // MARK: - صف مهمة
-struct TaskRow: View {
+struct RoutineTaskRow: View {
     let task: RoutineTask
     let isSelected: Bool
     let onTap: () -> Void

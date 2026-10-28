@@ -30,7 +30,7 @@ struct RootView: View {
                 systemImage: TopTab.myTasks.icon,
                 value: TopTab.myTasks
             ) {
-                ContentView()
+                MyTasksView()
             }
 
             Tab(
