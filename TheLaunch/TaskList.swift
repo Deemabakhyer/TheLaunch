@@ -185,8 +185,12 @@ struct MyTasksView: View {
                 .font(.callout)
                 .foregroundStyle(Color.khaki)
                 .frame(maxWidth: .infinity)
+                .navigationBarBackButtonHidden(true)
+
         }
+        
     }
+    
 }
 
 // MARK: - Period section
