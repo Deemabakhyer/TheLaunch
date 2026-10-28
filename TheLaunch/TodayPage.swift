@@ -45,7 +45,7 @@ struct NewTaskButton: View {
         }
     }
 }
-// ollapsed view, showing tasks as a “deck” of cards
+// collapsed view, showing tasks as a “deck” of cards
 struct TaskStackCard: View {
     let title: String
     let subtitle: String
@@ -63,8 +63,9 @@ struct TaskStackCard: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            layer().frame(height: 170).offset(y: 44)   // back card
-            layer().frame(height: 170).offset(y: 22)   // middle card
+            if total > 2 { layer().frame(height: 170).offset(y: 44) }   // back card
+            if total > 1 { layer().frame(height: 170).offset(y: 22) }
+            
             layer().frame(height: 170)
                 .overlay(alignment: .topLeading) {
                     VStack(alignment: .leading, spacing: 18) {
@@ -102,6 +103,7 @@ struct TaskStackCard: View {
     }
 }
 
+// MARK: - TaskCard (expanded view: one flat card per task)
 struct TaskCard: View {
     let title: String
     let subtitle: String
@@ -157,13 +159,14 @@ struct TodayPage: View {
     private var currentTasks: [TaskItem] {
         tasks.filter { $0.period == selection }
     }
-
+//check toggle
     private func toggle(_ task: TaskItem) {
         guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         withAnimation(.easeInOut(duration: 0.2)) {
             tasks[i].isDone.toggle()
         }
     }
+   // segement component
     private var segmentTitles: [String] {
             DayPeriod.allCases.map(\.title)
         }
@@ -190,7 +193,7 @@ struct TodayPage: View {
                     titles: segmentTitles,
                     selection: segmentBinding
                 )
-
+                
                 NewTaskButton().padding(.leading, 4)
 
                 ScrollView(showsIndicators: false) {

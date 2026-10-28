@@ -33,12 +33,29 @@ enum DayPeriod: CaseIterable {
 
 // a struct to define each task's attirbutes
 //structs allow tasks to be copied and reused
-struct TaskItem: Identifiable {
+struct TaskItem: Identifiable, Hashable {
     let id = UUID()
     var name: String
+    var notes: String
     var period: DayPeriod
     var date: Date
     var isDone: Bool = false
+    
+    init(
+        id: UUID = UUID(),
+        name: String,
+        notes: String = "",
+        period: DayPeriod,
+        date: Date,
+        isDone: Bool = false
+    ) {
+        
+        self.name = name
+        self.notes = notes
+        self.period = period
+        self.date = date
+        self.isDone = isDone
+    }
 }
 
 // a class handels the data of tasks and how they are manged
@@ -203,47 +220,17 @@ struct PeriodSection: View {
                 .font(.title3)
                 .foregroundStyle(Color.black)
 
-            ForEach(tasks) { task in
-                TaskRow(task: task, onToggle: { onToggle(task) })
-            }
+            
         }
     }
 }
 
 // MARK: - Task row (wraps TaskField)
 
-struct TaskRow: View {
-    let task: TaskItem
-    let onToggle: () -> Void
 
-    private var checkIcon: String {
-        task.isDone ? "checkmark.circle.fill" : "circle"
-    }
 
-    private var checkColor: Color {
-        task.isDone ? Color.oliveDark : Color.sage
-    }
+    
 
-    private var checkButton: some View {
-        Button(action: onToggle) {
-            Image(systemName: checkIcon)
-                .font(.title2)
-                .foregroundStyle(checkColor)
-                .contentTransition(.symbolEffect(.replace))
-        }
-        .buttonStyle(.plain)
-        .padding(.trailing, 24)
-    }
-
-    var body: some View {
-        TaskField(taskName: task.name)
-            .strikethrough(task.isDone)
-            .overlay(alignment: .trailing) {
-                checkButton
-            }
-            .animation(.easeInOut(duration: 0.2), value: task.isDone)
-    }
-}
 
 // MARK: - Preview
 
