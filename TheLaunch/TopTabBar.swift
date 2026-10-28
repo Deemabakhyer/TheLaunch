@@ -30,7 +30,7 @@ struct RootView: View {
                 systemImage: TopTab.myTasks.icon,
                 value: TopTab.myTasks
             ) {
-                ContentView()
+                MyTasksView()
             }
 
             Tab(
@@ -38,7 +38,7 @@ struct RootView: View {
                 systemImage: TopTab.today.icon,
                 value: TopTab.today
             ) {
-                ContentView()
+                TodayPage()
             }
         }
         .tint(Color.oliveDark)
