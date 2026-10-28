@@ -56,19 +56,8 @@ struct CustomizeRoutine: View {
                     // Skip
                     HStack {
                         Spacer()
-                        Button {
+                        SkipButton {
                             print("Skip tapped")
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text("Skip")
-                                Image(systemName: "chevron.right")
-                            }
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(Color(hex: "#000000"))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.sand.opacity(0.3))
-                            .clipShape(Capsule())
                         }
                     }
 
@@ -100,19 +89,9 @@ struct CustomizeRoutine: View {
             }
 
             // زر Next
-            Button {
+            NextButton(isEnabled: hasSelection) {
                 print("Next tapped")
-            } label: {
-                Text("Next")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 58)
-                    .background(hasSelection ? Color.oliveDark : Color.khaki)
-                    .clipShape(Capsule())
             }
-            .disabled(!hasSelection)
-            .padding(.horizontal, 20)
             .padding(.bottom, 20)
         }
     }
