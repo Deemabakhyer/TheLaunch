@@ -8,20 +8,22 @@
 import SwiftUI
 
 struct HeaderView: View {
+    var onProfileTap: () -> Void = {}
     var body: some View {
         HStack {
             Text("Today's Tasks")
                 .font(.system(size: 32, weight: .bold))
             Spacer()
-            Image(.moss)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .background(Color.backgroundCream)
-                .clipShape(Circle())
+            Button(action: onProfileTap) {
+                Image(.moss)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 70, height: 70)
+                    .background(Color.sand)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
         }
-        
-        
     }
 }
 struct NewTaskButton: View {
@@ -31,19 +33,19 @@ struct NewTaskButton: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: "plus")
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color.oliveDark)
                     .font(.system(size: 22, weight: .light))
                     .frame(width: 62, height: 34)
                     .overlay(Capsule().stroke(Color(white: 0.25), lineWidth: 2))
                     
-                Text("New Task")
+                Text("Add New Task")
                     .font(.system(size: 20))
-                    .foregroundStyle(Color(white: 0.27))
+                    .foregroundStyle(Color.oliveDark)
             }
         }
     }
 }
-
+// collapsed view, showing tasks as a “deck” of cards
 struct TaskStackCard: View {
     let title: String
     let subtitle: String
@@ -54,18 +56,17 @@ struct TaskStackCard: View {
 
     private func layer() -> some View {
         RoundedRectangle(cornerRadius: 28)
-            .fill(Color.primaryButtons)
+            .fill(Color.oliveDark)
             .overlay(RoundedRectangle(cornerRadius: 28)
-                .stroke(Color.backgroundCream, lineWidth: 6))
+                .stroke(Color.cream, lineWidth: 6))
     }
 
     var body: some View {
         ZStack(alignment: .top) {
-            layer().frame(height: 170).offset(y: 44)   // back card
-            layer().frame(height: 170).offset(y: 22)   // middle card
-
-            layer()
-                .frame(height: 170)
+            if total > 2 { layer().frame(height: 170).offset(y: 44) }   // back card
+            if total > 1 { layer().frame(height: 170).offset(y: 22) }
+            
+            layer().frame(height: 170)
                 .overlay(alignment: .topLeading) {
                     VStack(alignment: .leading, spacing: 18) {
                         HStack {
@@ -98,10 +99,11 @@ struct TaskStackCard: View {
                     .padding(.top, 20)
                 }
         }
-        .frame(height: 215, alignment: .top)    // belongs to the ZStack
+        .frame(height: 215, alignment: .top)
     }
 }
 
+// MARK: - TaskCard (expanded view: one flat card per task)
 struct TaskCard: View {
     let title: String
     let subtitle: String
@@ -110,9 +112,9 @@ struct TaskCard: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: 28)
-            .fill(Color.primaryButtons)
+            .fill(Color.oliveDark)
             .overlay(RoundedRectangle(cornerRadius: 28)
-                .stroke(Color.backgroundCream, lineWidth: 6))
+                .stroke(Color.cream, lineWidth: 6))
             .frame(height: 120)
             .overlay(alignment: .leading) {
                 HStack(alignment: .top, spacing: 12) {
@@ -138,43 +140,6 @@ struct TaskCard: View {
             }
     }
 }
-
-struct FloatingTabBar: View {
-    @Binding var selection: TopTab
-    @Namespace private var ns
-
-    var body: some View {
-        HStack(spacing: 8) {
-            ForEach(TopTab.allCases, id: \.self) { tab in
-                Button {
-                    withAnimation(.spring(duration: 0.3)) { selection = tab }
-                } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: 22))
-                        Text(tab.rawValue)
-                            .font(.system(size: 11, weight: .semibold))
-                    }
-                    .foregroundStyle(selection == tab ? Color.primaryButtons : .black)
-                    .frame(width: 112, height: 64)
-                    .background {
-                        if selection == tab {
-                            Capsule()
-                                .fill(Color.primaryButtons.opacity(0.12))
-                                .matchedGeometryEffect(id: "highlight", in: ns)
-                        }
-                    }
-                    .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(6)
-        .background(.ultraThinMaterial, in: Capsule())
-        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
-    }
-}
-
 struct TodayPage: View {
     
     @State private var selection: DayPeriod = .morning
@@ -194,13 +159,14 @@ struct TodayPage: View {
     private var currentTasks: [TaskItem] {
         tasks.filter { $0.period == selection }
     }
-
+//check toggle
     private func toggle(_ task: TaskItem) {
         guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         withAnimation(.easeInOut(duration: 0.2)) {
             tasks[i].isDone.toggle()
         }
     }
+   // segement component
     private var segmentTitles: [String] {
             DayPeriod.allCases.map(\.title)
         }
@@ -218,7 +184,7 @@ struct TodayPage: View {
 
     var body: some View {
         ZStack {
-            Color.backgroundCream.ignoresSafeArea()
+            Color.cream.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 24) {
                 HeaderView()
@@ -227,7 +193,7 @@ struct TodayPage: View {
                     titles: segmentTitles,
                     selection: segmentBinding
                 )
-
+                
                 NewTaskButton().padding(.leading, 4)
 
                 ScrollView(showsIndicators: false) {
@@ -259,7 +225,7 @@ struct TodayPage: View {
                         } label: {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 22, weight: .heavy))
-                                .foregroundStyle(Color.primaryButtons)
+                                .foregroundStyle(Color.oliveDark)
                                 .rotationEffect(.degrees(isExpanded ? 180 : 0))
                                 .frame(maxWidth: .infinity, minHeight: 44)
                                 .contentShape(Rectangle())
@@ -272,8 +238,9 @@ struct TodayPage: View {
             .padding(.top, 8)
         }
         .safeAreaInset(edge: .bottom) {
-            FloatingTabBar(selection: $tab)
+            
         }
+        
         .onChange(of: selection) {
             isExpanded = false
         }
