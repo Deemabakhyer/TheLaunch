@@ -14,6 +14,10 @@ extension Color {
     static let sand       = Color(hex: "#E4DBBB")
     static let cream      = Color(hex: "#F8F3E1")
     static let terracotta = Color(hex: "#D4574B")
+    //Confetti Colores 
+    static let confettiOrange = Color(hex: "#F5A83B")
+    static let confettiTeal   = Color(hex: "#4FC2C9")
+    static let confettiPink   = Color(hex: "#E8747A")
 }
 
 extension Color {
