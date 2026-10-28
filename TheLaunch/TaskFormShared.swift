@@ -1,55 +1,10 @@
-//  TaskFormShared.swift
-//  Pieces shared by AddTaskView and EditTaskView.
-//
-//   Done by Hadeel Awaji on 15/05/1448 AH,
+// MARK: - TaskFormShared.swift
+// Refactored by Hadeel Awaji
+// Shared components for AddTaskView and EditTaskView using TaskItem directly.
 
 import SwiftUI
 
-// MARK: - 1. Icons used by the form
-
-extension DayPeriod {
-    var formIcon: String {
-        switch self {
-        case .morning:   return "sun.max.fill"
-        case .afternoon: return "sun.haze.fill"
-        case .evening:   return "moon.fill"
-        }
-    }
-}
-
-// MARK: - 2. Form state
-
-struct TaskDraft: Equatable {
-    static let notesLimit = 60
-
-    var name = ""
-    var notes = ""
-    var period: DayPeriod?
-    var date: Date?
-
-    init() {}
-
-    init(_ task: TaskItem) {
-        name = task.name
-        notes = task.notes
-        period = task.period
-        date = Calendar.current.isDateInToday(task.date) ? nil : task.date
-    }
-    var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && period != nil
-    }
-
-    func makeTask(id: UUID = UUID(), isDone: Bool = false) -> TaskItem {
-        TaskItem(
-            id: id,
-            name: name.trimmingCharacters(in: .whitespaces),
-            notes: notes,
-            period: period ?? .morning,
-            date: date ?? Date(),
-            isDone: isDone
-        )
-    }
-}
+// MARK: - 1. Extensions for View Styling
 
 extension View {
     func taskFieldStyle(fontSize: CGFloat) -> some View {
@@ -83,19 +38,19 @@ private func fieldPrompt(_ text: String, size: CGFloat) -> Text {
         .foregroundColor(.black.opacity(0.6))
 }
 
-// MARK: - 4. Screen scaffold
+// MARK: - 2. Screen Scaffold
 
 struct TaskFormScreen<Footer: View>: View {
     let title: String
-    @Binding var draft: TaskDraft
+    @Binding var task: TaskItem
     @ViewBuilder var footer: () -> Footer
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                TaskInputCard(name: $draft.name, notes: $draft.notes)
-                TaskPeriodPicker(selection: $draft.period)
-                TaskDayPicker(date: $draft.date)
+                TaskInputCard(name: $task.name, notes: $task.notes)
+                TaskPeriodPicker(selection: $task.period)
+                TaskDayPicker(date: $task.date)
             }
             .padding(.horizontal, 24)
             .padding(.top, 10)
@@ -113,8 +68,7 @@ struct TaskFormScreen<Footer: View>: View {
                 .padding(.bottom, 20)
                 .background(Color.cream)
         }
-        // Own header: team BackButton + title (system nav bar hidden,
-        // so no glass circle and no second back button)
+        // Own header: team BackButton + title
         .toolbar(.hidden, for: .navigationBar)
         .safeAreaInset(edge: .top) {
             ZStack {
@@ -134,7 +88,7 @@ struct TaskFormScreen<Footer: View>: View {
     }
 }
 
-// MARK: Section title
+// MARK: - 3. Section Title
 
 struct TaskSectionTitle: View {
     let title: String
@@ -160,11 +114,12 @@ struct TaskSectionTitle: View {
     }
 }
 
-// MARK: - 5. Name + notes card
+// MARK: - 4. Name + Notes Card
 
 struct TaskInputCard: View {
     @Binding var name: String
     @Binding var notes: String
+    private static let notesLimit = 60
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -191,13 +146,12 @@ struct TaskInputCard: View {
                 .lineLimit(3...5)
                 .taskFieldStyle(fontSize: 14)
                 .onChange(of: notes) { _, newValue in
-                    // stop at the character limit
-                    if newValue.count > TaskDraft.notesLimit {
-                        notes = String(newValue.prefix(TaskDraft.notesLimit))
+                    if newValue.count > Self.notesLimit {
+                        notes = String(newValue.prefix(Self.notesLimit))
                     }
                 }
 
-                Text("\(notes.count)/\(TaskDraft.notesLimit)")
+                Text("\(notes.count)/\(Self.notesLimit)")
                     .font(.system(size: 16))
                     .foregroundStyle(Color.black.opacity(0.6))
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -210,10 +164,10 @@ struct TaskInputCard: View {
     }
 }
 
-// MARK: - 6. Time of day
+// MARK: - 5. Time of Day Picker
 
 struct TaskPeriodPicker: View {
-    @Binding var selection: DayPeriod?
+    @Binding var selection: DayPeriod
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -238,7 +192,7 @@ private struct TaskPeriodButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 10) {
-                Image(systemName: period.formIcon)
+                Image(systemName: period.icon)
                     .font(.system(size: 21))
                     .foregroundStyle(Color.white)
                     .frame(width: 51, height: 51)
@@ -263,11 +217,11 @@ private struct TaskPeriodButton: View {
     }
 }
 
-// MARK: - 7. Day (Today / Pick date)
+// MARK: - 6. Day Picker (Today / Pick Date)
 
 struct TaskDayPicker: View {
-    @Binding var date: Date?
-    @State private var isCalendarOpen = false   // screen-only state, so @State
+    @Binding var date: Date
+    @State private var isCalendarOpen = false
 
     private static let formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -281,28 +235,27 @@ struct TaskDayPicker: View {
 
             HStack(spacing: 10) {
                 Button {
-                    date = nil
+                    date = Date()
                     isCalendarOpen = false
                 } label: {
-                    Text("Today").taskPillStyle(isSelected: date == nil)
+                    Text("Today").taskPillStyle(isSelected: Calendar.current.isDateInToday(date))
                 }
 
                 Button {
-                    if date == nil { date = Date() }
                     isCalendarOpen.toggle()
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "calendar")
-                        Text(date.map(Self.formatter.string(from:)) ?? "Pick date")
+                        Text(Self.formatter.string(from: date))
                     }
-                    .taskPillStyle(isSelected: date != nil)
+                    .taskPillStyle(isSelected: !Calendar.current.isDateInToday(date))
                 }
             }
 
             if isCalendarOpen {
                 DatePicker(
                     "",
-                    selection: Binding(get: { date ?? Date() }, set: { date = $0 }),
+                    selection: $date,
                     displayedComponents: .date
                 )
                 .datePickerStyle(.graphical)

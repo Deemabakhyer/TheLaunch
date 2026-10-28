@@ -1,21 +1,30 @@
 //  AddTaskView.swift
-//   Done by Hadeel Awaji on 15/05/1448 AH,
+//  Done by Hadeel Awaji on 15/05/1448 AH,
 
 import SwiftUI
 
 struct AddTaskView: View {
     var onSave: (TaskItem) -> Void
 
-    @State private var draft = TaskDraft()
-    @Environment(\.dismiss) private var dismiss   // pops the page
+    // نستخدم TaskItem مباشرة بدلاً من TaskDraft
+    @State private var task = TaskItem(name: "", period: .morning, date: Date())
+    @Environment(\.dismiss) private var dismiss
+
+    // شرط التحقق من صحة المدخلات
+    private var isValid: Bool {
+        !task.name.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     var body: some View {
-        TaskFormScreen(title: "Add Task", draft: $draft) {
+        TaskFormScreen(title: "Add Task", task: $task) {
             SaveChangesButton(title: "Save") {
-                onSave(draft.makeTask())
+                // تنظيف المسافات قبل الحفظ
+                var new = task
+                new.name = task.name.trimmingCharacters(in: .whitespaces)
+                onSave(new)
                 dismiss()
             }
-            .disabled(!draft.isValid)
+            .disabled(!isValid)
         }
     }
 }

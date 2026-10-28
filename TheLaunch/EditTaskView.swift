@@ -1,35 +1,43 @@
 //  EditTaskView.swift
-//   Done by Hadeel Awaji on 15/05/1448 AH,
+//  Done by Hadeel Awaji on 15/05/1448 AH,
 
 import SwiftUI
 
 struct EditTaskView: View {
-    let task: TaskItem
+    let originalTask: TaskItem
     var onSave: (TaskItem) -> Void
     var onDelete: () -> Void
 
-    @State private var draft: TaskDraft
+    @State private var task: TaskItem
     @State private var showDeleteAlert = false
-    @Environment(\.dismiss) private var dismiss   // pops the page
+    @Environment(\.dismiss) private var dismiss
 
     init(task: TaskItem, onSave: @escaping (TaskItem) -> Void, onDelete: @escaping () -> Void) {
-        self.task = task
+        self.originalTask = task
         self.onSave = onSave
         self.onDelete = onDelete
-        _draft = State(initialValue: TaskDraft(task))
+        // نسخ المهمة الحالية للتعديل عليها بحرية
+        _task = State(initialValue: task)
     }
 
-    private var canSave: Bool {
-        draft.isValid && draft != TaskDraft(task)
+    private var isValid: Bool {
+        !task.name.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    // هل صار فيه تعديل فعلي مقارنة بالمهمة الأصلية؟
+    private var hasChanges: Bool {
+        task != originalTask
     }
 
     var body: some View {
-        TaskFormScreen(title: "Edit Task", draft: $draft) {
+        TaskFormScreen(title: "Edit Task", task: $task) {
             SaveChangesButton(title: "Save changes") {
-                onSave(draft.makeTask(id: task.id, isDone: task.isDone))
+                var updated = task
+                updated.name = task.name.trimmingCharacters(in: .whitespaces)
+                onSave(updated)
                 dismiss()
             }
-            .disabled(!canSave)
+            .disabled(!isValid || !hasChanges)
 
             DeleteButton(title: "Delete") {
                 showDeleteAlert = true
