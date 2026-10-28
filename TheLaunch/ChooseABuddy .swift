@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: - الموديل
+// MARK: - buddy model
 struct Buddy: Identifiable, Hashable {
     let id = UUID()
     let name: String
@@ -21,9 +21,10 @@ let buddies = [
     Buddy(name: "Night", imageName: "Night")
 ]
 
-// MARK: - الصفحة
+// MARK: - View
 struct ChooseABuddy: View {
     @State private var selected: Buddy? = nil
+    @State private var navigateToRoutine = false
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -31,54 +32,55 @@ struct ChooseABuddy: View {
     ]
 
     var body: some View {
-        ZStack {
-            Color.cream.ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: 0) {
-
-                // العنوان
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Choose a buddy")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(Color(hex: "#000000"))
-                    Text("You can change this later")
-                        .font(.system(size: 18))
-                        .foregroundColor(Color(hex: "#605B5B"))
-                }
-                .padding(.top, 20)
-
-                // الشبكة
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(buddies) { buddy in
-                        BuddyCard(buddy: buddy, isSelected: selected == buddy)
-                            .onTapGesture { selected = buddy }
+        NavigationStack{
+            ZStack {
+                Color.cream.ignoresSafeArea()
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    
+                    // Title
+                    VStack(alignment: .leading, spacing: 4) {
+                        
+                        // Skip button, top right
+                        HStack {
+                            Spacer()
+                            SkipButton {
+                                navigateToRoutine = true
+                            }
+                        }
+                        
+                        Text("Choose a buddy")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(Color(hex: "#000000"))
+                        Text("You can change this later")
+                            .font(.system(size: 18))
+                            .foregroundColor(Color(hex: "#605B5B"))
                     }
+                    
+                    // Grid
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(buddies) { buddy in
+                            BuddyCard(buddy: buddy, isSelected: selected == buddy)
+                                .onTapGesture { selected = buddy }
+                        }
+                    }
+                    .padding(.top, 24)
+                    
+                    Spacer()
+                    
+                    // Next
+                    NextButton(action: {})
                 }
-                .padding(.top, 24)
-
-                Spacer()
-
-                // زر Next
-                Button {
-                    print("Next tapped with \(selected?.name ?? "")")
-                } label: {
-                    Text("Next")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 58)
-                        .background(selected == nil ? Color.khaki : Color.oliveDark)
-                        .clipShape(Capsule())
-                }
-                .disabled(selected == nil)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
+            .navigationDestination(isPresented: $navigateToRoutine) {
+                CustomizeRoutine()
+            }
         }
     }
 }
 
-// MARK: - بطاقة الشخصية
+// MARK: - Pet card
 struct BuddyCard: View {
     let buddy: Buddy
     let isSelected: Bool

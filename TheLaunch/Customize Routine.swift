@@ -40,6 +40,7 @@ let routineSections = [
 struct CustomizeRoutine: View {
     @State private var selectedTasks: Set<UUID> = []
     @State private var customTexts: [String: String] = [:]
+    @State private var navigateToRoutine = false
 
     private var hasSelection: Bool {
         !selectedTasks.isEmpty ||
@@ -54,24 +55,15 @@ struct CustomizeRoutine: View {
                 VStack(alignment: .leading, spacing: 0) {
 
                     // Skip
-                    HStack {
-                        Spacer()
-                        Button {
-                            print("Skip tapped")
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text("Skip")
-                                Image(systemName: "chevron.right")
-                            }
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(Color(hex: "#000000"))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.sand.opacity(0.7))
-                            .clipShape(Capsule())
-                        }
-                    }
-
+                    // Skip button, top right
+                                HStack {
+                                    Spacer()
+                                    SkipButton {
+                                        navigateToRoutine = true
+                                    }
+                                }
+                                .padding(.bottom, 16)
+                    
                     Text("Customize Routine")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(Color(hex: "#000000"))
@@ -98,24 +90,17 @@ struct CustomizeRoutine: View {
                 }
                 .padding(.horizontal, 20)
             }
-
-            // زر Next
-            Button {
-                print("Next tapped")
-            } label: {
-                Text("Next")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 58)
-                    .background(hasSelection ? Color.oliveDark : Color.khaki)
-                    .clipShape(Capsule())
+            .navigationDestination(isPresented: $navigateToRoutine) {
+                MyTasksView()
             }
-            .disabled(!hasSelection)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
+
+            // Next
+            NextButton(action: {})
         }
+        .navigationBarBackButtonHidden(true)
+
     }
+    
 }
 
 // MARK: - قسم

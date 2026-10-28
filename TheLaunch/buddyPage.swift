@@ -29,10 +29,6 @@ struct buddyPage: View {
     //envirounment will call info or action
     @Environment(\.colorScheme) private var colorScheme
     
-    // BACK BUTTON   activation
-    @Environment(\.dismiss) private var dismiss
-    
-    
     var body: some View {
        
 
@@ -170,27 +166,10 @@ struct buddyPage: View {
 
 
           // BACK BUTTON to be connected to todays task page
-        VStack {
-            HStack {
-            Button {
-                // the action here
-                dismiss()
-                
-            } label: {
-            Image(systemName: "chevron.left")
-            .font(.system(size: 20, weight: .semibold))
-            .foregroundColor(.primary)
-            .frame(width: 44, height: 44)
-                    }
-            .buttonStyle(.plain)
-
-                    Spacer()
-                }
-
-                Spacer()
-            }
-            .padding(.leading, 12)
-          
+            BackButton()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.leading, 20)
+                .padding(.top, 8)
 
         }
 
