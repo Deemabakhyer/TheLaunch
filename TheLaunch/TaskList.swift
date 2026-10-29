@@ -31,16 +31,18 @@ enum DayPeriod: CaseIterable {
     }
 }
 
-// a struct to define each task's attirbutes
-//structs allow tasks to be copied and reused
+
+// a struct to define each task's attributes
+// structs allow tasks to be copied and reused
 struct TaskItem: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID
     var name: String
     var notes: String
     var period: DayPeriod
     var date: Date
-    var isDone: Bool = false
-    
+
+    var isDone: Bool
+
     init(
         id: UUID = UUID(),
         name: String,
@@ -49,7 +51,8 @@ struct TaskItem: Identifiable, Hashable {
         date: Date,
         isDone: Bool = false
     ) {
-        
+
+        self.id = id
         self.name = name
         self.notes = notes
         self.period = period
@@ -58,8 +61,8 @@ struct TaskItem: Identifiable, Hashable {
     }
 }
 
-// a class handels the data of tasks and how they are manged
-//ObservableObject can only be adopted by classes, not structs. It’s SwiftUI’s mechanism for “tell me when this object changes so I can redraw.” It relies on object identity (the same object over time), which structs don’t have
+// a class handles the data of tasks and how they are managed
+// ObservableObject can only be adopted by classes, not structs. It's SwiftUI's mechanism for "tell me when this object changes so I can redraw." It relies on object identity (the same object over time), which structs don't have
 final class TaskStore: ObservableObject {
 
     @Published var tasks: [TaskItem] = []
@@ -81,15 +84,16 @@ final class TaskStore: ObservableObject {
             }
         }
 
-        // Scheduled samples (April 2026)
-        if let apr8  = cal.date(from: DateComponents(year: 2026, month: 4, day: 8)),
-           let apr20 = cal.date(from: DateComponents(year: 2026, month: 4, day: 20)) {
-            tasks.append(make("Task name", .afternoon, apr8,  done: true))
-            tasks.append(make("Task name", .morning,   apr20, done: false))
+        // Scheduled samples (relative to today so they always appear in the future)
+        if let in3Days = cal.date(byAdding: .day, value: 3, to: today),
+           let in7Days = cal.date(byAdding: .day, value: 7, to: today) {
+            tasks.append(make("Task name", .afternoon, in3Days, done: true))
+            tasks.append(make("Task name", .morning,   in7Days, done: false))
         }
     }
 
-    // checks on which day and which period of the day does this task belong to
+
+    // checks on which day and which period of the day this task belongs to
     func tasks(on date: Date, period: DayPeriod) -> [TaskItem] {
         tasks.filter { $0.period == period && Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
@@ -183,8 +187,9 @@ struct MyTasksView: View {
     // Split out of `body` to keep the expression simple for the compiler
     @ViewBuilder
     private var scheduledSection: some View {
-        
-        // the calendar native component
+
+
+        // the native calendar component
         DatePicker(
             "Select date",
             selection: $selectedDate,
@@ -207,8 +212,8 @@ struct MyTasksView: View {
 }
 
 // MARK: - Period section
-//It displays one block of the screen: a heading for a part of the day (like “Morning” with a sun icon) followed by the list of tasks that belong to it. The main screen creates three of these, one each for Morning, Afternoon, and Evening.
-//It’s a small, reusable view that only displays what it’s given. It doesn’t store or fetch any data itself.
+// It displays one block of the screen: a heading for a part of the day (like "Morning" with a sun icon) followed by the list of tasks that belong to it. The main screen creates three of these, one each for Morning, Afternoon, and Evening.
+// It's a small, reusable view that only displays what it's given. It doesn't store or fetch any data itself.
 struct PeriodSection: View {
     let period: DayPeriod
     let tasks: [TaskItem]
@@ -220,18 +225,39 @@ struct PeriodSection: View {
                 .font(.title3)
                 .foregroundStyle(Color.black)
 
-            
+
+            ForEach(tasks) { task in
+                TaskRow(task: task) { onToggle(task) }
+            }
         }
     }
 }
 
 // MARK: - Task row (wraps TaskField)
+struct TaskRow: View {
+    let task: TaskItem
+    let onToggle: () -> Void
 
+    private var checkButton: some View {
+        Button(action: onToggle) {
+            Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundStyle(Color.oliveDark)
+        }
+        .buttonStyle(.plain)
+        .padding(.trailing, 12)
+    }
 
-
+    var body: some View {
+        TaskField(title: task.name)
+            .strikethrough(task.isDone)
+            .overlay(alignment: .trailing) {
+                checkButton
+            }
+            .animation(.easeInOut(duration: 0.2), value: task.isDone)
+    }
+}
     
-
-
 // MARK: - Preview
 
 #Preview {
