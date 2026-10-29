@@ -5,27 +5,9 @@
 //  Created by Haneen  on 25/10/2026.
 //
 
-
 import SwiftUI
 // observe changes in data
 import Combine
-
-
-// to be removed == in choose a pet page
-
-struct Buddy: Identifiable, Hashable {
-    let name: String
-    let imageName: String
-    var id: String { name }
-
-    static let all: [Buddy] = [
-        Buddy(name: "Moss", imageName: "Moss"),
-        Buddy(name: "Dusk", imageName: "Dusk"),
-        Buddy(name: "Sand", imageName: "Sand"),
-        Buddy(name: "Night", imageName: "Night")
-    ]
-}
-
 
 // BodyPage Appearance
 struct buddyPage: View {
@@ -186,7 +168,6 @@ struct buddyPage: View {
             // BACK BUTTON to be connected to todays task page
             VStack {
                 HStack {
-                    ContentView()
                     BackButton()
                     
                     Spacer()
