@@ -38,7 +38,7 @@ struct RootView: View {
                 systemImage: TopTab.today.icon,
                 value: TopTab.today
             ) {
-                Buddyscreen()
+                TodayPage()
             }
         }
         .tint(Color.oliveDark)
