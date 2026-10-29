@@ -54,6 +54,7 @@ struct TaskStackCard: View {
     let isDone: Bool
     var onToggle: () -> Void = {}
 
+//card background
     private func layer() -> some View {
         RoundedRectangle(cornerRadius: 28)
             .fill(Color.oliveDark)
@@ -63,9 +64,13 @@ struct TaskStackCard: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            if total > 2 { layer().frame(height: 170).offset(y: 44) }   // back card
+            
+            // Back layers, only drawn if there are enough tasks
+            // Offsetting them downward makes their edges peek out below the front card
+            if total > 2 { layer().frame(height: 170).offset(y: 44) }
             if total > 1 { layer().frame(height: 170).offset(y: 22) }
             
+            //front card with its content placed on top
             layer().frame(height: 170)
                 .overlay(alignment: .topLeading) {
                     VStack(alignment: .leading, spacing: 18) {
@@ -74,7 +79,7 @@ struct TaskStackCard: View {
                             Spacer()
                             Text("\(index)/\(total)").font(.system(size: 20, weight: .light))
                         }
-
+                        // Checkbox on the left, task text on the right.
                         HStack(alignment: .top, spacing: 12) {
                             Button(action: onToggle) {
                                 Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
@@ -103,12 +108,14 @@ struct TaskStackCard: View {
     }
 }
 
-// MARK: - TaskCard (expanded view: one flat card per task)
+// One flat card per task, used when the list is expanded
 struct TaskCard: View {
     let title: String
     let subtitle: String
     let isDone: Bool
     var onToggle: () -> Void = {}
+    var onEdit: () -> Void = {}
+
 
     var body: some View {
         RoundedRectangle(cornerRadius: 28)
@@ -138,42 +145,62 @@ struct TaskCard: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 28)
             }
+            .overlay(alignment: .bottomTrailing) {
+                            Button(action: onEdit) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 16, weight: .regular))
+                                    .foregroundStyle(.white.opacity(0.8))
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.trailing, 18)
+                            .padding(.bottom, 12)
+                        }
     }
 }
 struct TodayPage: View {
     
     @State private var selection: DayPeriod = .morning
     @State private var isExpanded = false
-    @State private var tab: TopTab = .today
-
+    @State private var navigateToAdd = false
+    @State private var navigateToEdit = false
+    @State private var taskToEdit: TaskItem?
     
+    
+
 
     @State private var tasks = [
         TaskItem(name: "Work on App Design", notes: "Draw the lo-fi on Paper", period: .morning, date: Date()),
         TaskItem(name: "Plan the Week", notes: "List top 3 goals", period: .morning, date: Date()),
         TaskItem(name: "Reply to Emails", notes: "Clear the inbox", period: .morning, date: Date()),
         TaskItem(name: "Team Sync", notes: "Share progress", period: .afternoon, date: Date()),
+        TaskItem(name: "Team Sync", notes: "Share progress", period: .afternoon, date: Date()),
         TaskItem(name: "Read", notes: "20 pages", period: .evening, date: Date())
     ]
-
+    // Only the tasks that belong to the selected period.
+    // Recomputed automatically whenever `tasks` or `selection` changes
     private var currentTasks: [TaskItem] {
         tasks.filter { $0.period == selection }
     }
-//check toggle
+
     private func toggle(_ task: TaskItem) {
         guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         withAnimation(.easeInOut(duration: 0.2)) {
             tasks[i].isDone.toggle()
         }
     }
-   // segement component
+    // Titles for the segmented control (e.g. ["Morning", "Afternoon", "Evening"])
     private var segmentTitles: [String] {
             DayPeriod.allCases.map(\.title)
         }
-
+    // The segmented control works with Strings, but our state is a DayPeriod.
+    // This Binding translates between the two in both directions.
         private var segmentBinding: Binding<String> {
             Binding(
+                // Reading: expose the selected period's title.
                 get: { selection.title },
+                // Writing: find the period matching the tapped title and store it
                 set: { newTitle in
                     if let match = DayPeriod.allCases.first(where: { $0.title == newTitle }) {
                         selection = match
@@ -183,64 +210,91 @@ struct TodayPage: View {
         }
 
     var body: some View {
-        ZStack {
-            Color.cream.ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: 24) {
-                HeaderView()
-
-                BottomTapBar(
-                    titles: segmentTitles,
-                    selection: segmentBinding
-                )
+        NavigationStack{
+            ZStack {
+                Color.cream.ignoresSafeArea()
                 
-                NewTaskButton().padding(.leading, 4)
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        if let first = currentTasks.first {
-                            if isExpanded {
-                                ForEach(currentTasks) { task in
-                                    TaskCard(title: task.name,
-                                             subtitle: task.notes,
-                                             isDone: task.isDone,
-                                             onToggle: { toggle(task) })
+                VStack(alignment: .leading, spacing: 24) {
+                    HeaderView()
+                    
+                    BottomTapBar(
+                        titles: segmentTitles,
+                        selection: segmentBinding
+                    )
+                    NewTaskButton {
+                        navigateToAdd = true
+                    }
+                    .padding(.leading, 4)
+                    
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 16) {
+                            if let first = currentTasks.first {
+                                if isExpanded {
+                                    ForEach(currentTasks) { task in
+                                        TaskCard(title: task.name,
+                                                 subtitle: task.notes,
+                                                 isDone: task.isDone,
+                                                 onToggle: { toggle(task) }){
+                                            onEdit: do {
+                                                         taskToEdit = task
+                                                         navigateToEdit = true
+                                                     }
+                                        }
                                         .transition(.move(edge: .top).combined(with: .opacity))
-                                }
-                            } else {
-                                TaskStackCard(title: first.name,
-                                              subtitle: first.notes,
-                                              index: 1,
-                                              total: currentTasks.count,
-                                              isDone: first.isDone,
-                                              onToggle: { toggle(first) })
+                                    }
+                                } else {
+                                    TaskStackCard(title: first.name,
+                                                  subtitle: first.notes,
+                                                  index: 1,
+                                                  total: currentTasks.count,
+                                                  isDone: first.isDone,
+                                                  onToggle: { toggle(first) })
                                     .transition(.opacity)
+                                }
                             }
-                        }
-
-                        Button {
-                            withAnimation(.spring(duration: 0.4)) {
-                                isExpanded.toggle()
+                            
+                            Button {
+                                withAnimation(.spring(duration: 0.4)) {
+                                    isExpanded.toggle()
+                                }
+                            } label: {
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 22, weight: .heavy))
+                                    .foregroundStyle(Color.oliveDark)
+                                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .contentShape(Rectangle())
                             }
-                        } label: {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 22, weight: .heavy))
-                                .foregroundStyle(Color.oliveDark)
-                                .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                                .contentShape(Rectangle())
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
-        }
-        .safeAreaInset(edge: .bottom) {
+            .navigationDestination(isPresented: $navigateToAdd) {
+                AddTaskView { newTask in
+                    tasks.append(newTask)
+                }
+            }
+            .navigationDestination(isPresented: $navigateToEdit) {
+                if let task = taskToEdit {
+                    EditTaskView(
+                        task: task,
+                        onSave: { updated in
+                            if let i = tasks.firstIndex(where: { $0.id == updated.id }) {
+                                tasks[i] = updated
+                            }
+                        },
+                        onDelete: {
+                            tasks.removeAll { $0.id == task.id }
+                        }
+                    )
+                }
+            }
             
         }
-        
         .onChange(of: selection) {
             isExpanded = false
         }
@@ -250,3 +304,4 @@ struct TodayPage: View {
 #Preview {
     TodayPage()
 }
+
