@@ -20,13 +20,13 @@ struct AllRoutinesDoneView: View {
     @ObservedObject private var progress = BuddyProgress.shared
 
     // to change the level
-    private var buddyImageName: String {
-           if progress.stage == 3 {
-               return selectedBuddy + "Grown"
-           } else {
-               return selectedBuddy + "Young"
-           }
-       }
+    private var congratulationsImageName: String {
+        if progress.stage == 1 {
+            return selectedBuddy + "Young"
+            } else {
+                return progress.imageName(for: selectedBuddy)
+            }
+        }
     
     //for colores = support light and dark mode
     @Environment(\.colorScheme) private var colorScheme
@@ -59,8 +59,9 @@ struct AllRoutinesDoneView: View {
                 ZStack {
                     
                     ConfettiView()
-                    
-                    Image(buddyImageName)
+                    Image(progress.stage == 3
+                          ? selectedBuddy + "Grown"
+                          : selectedBuddy + "Young")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200, height: 240)
@@ -83,7 +84,7 @@ struct AllRoutinesDoneView: View {
             } // END main VStack
             .padding(.horizontal, 24)
 
-            // close button (X) to be connected to All tasks page
+            // close button (X) to be connected to All tasks page OR MAIN PAGE
             // position
             .overlay(alignment: .topLeading) {
           // button action
@@ -111,6 +112,28 @@ struct AllRoutinesDoneView: View {
     }
 
 }
+
+// 🔴🔴🔴 START - FUTURE PAGE CONNECTIONS
+//
+// TODO - ALL TASKS PAGE:
+// When all daily routines are completed:
+// 1. Call BuddyProgress.shared.completeDay() once.
+// 2. Present AllRoutinesDoneView().
+// 3. Prevent reopening the congratulations page from
+//    advancing the Buddy again.
+//
+// TODO - MAIN PAGE:
+// Connect the main page to buddyPage() to show the
+// selected Buddy and its current growth stage.
+//
+// The main page can use the existing:
+// - @AppStorage("selectedBuddy")
+// - BuddyProgress.shared
+// - progress.imageName(for: selectedBuddy)
+//
+// Do not create another Buddy model or growth function.
+//
+// 🔴🔴🔴 END - FUTURE PAGE CONNECTIONS
 
 
 struct ConfettiPiece {

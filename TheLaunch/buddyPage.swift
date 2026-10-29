@@ -10,46 +10,66 @@ import SwiftUI
 // observe changes in data
 import Combine
 
+
+// to be removed == in choose a pet page
+
+struct Buddy: Identifiable, Hashable {
+    let name: String
+    let imageName: String
+    var id: String { name }
+
+    static let all: [Buddy] = [
+        Buddy(name: "Moss", imageName: "Moss"),
+        Buddy(name: "Dusk", imageName: "Dusk"),
+        Buddy(name: "Sand", imageName: "Sand"),
+        Buddy(name: "Night", imageName: "Night")
+    ]
+}
+
+
 // BodyPage Appearance
 struct buddyPage: View {
-   
-
-// save the selected buddy
+    
+    
+    // save the selected buddy
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
-   
-
+    
+    
     // pet progress already connected to the code in the buttom
     //observes changes in data and tells SwiftUI to update the UI.
     @ObservedObject private var progress = BuddyProgress.shared
-
-    // save list of buddies
-    private let buddies = ["Dusk", "Moss", "Sand", "Night"]
     
+    
+    // can be enum PET NAMES
     // for colores
     //envirounment will call info or action
     @Environment(\.colorScheme) private var colorScheme
     
+    
+    
+    
+    
     var body: some View {
-       
-
+        
+        
         ZStack {
-           
-
+            
+            
             (colorScheme == .dark ? Color.oliveDark : Color.cream)
-                 .ignoresSafeArea()
-
-// body dispaly
+                .ignoresSafeArea()
+            
+            // body dispaly
             VStack {
-               
-
-
-
+                
+                
+                
+                
                 Text("My Buddy")
                     .font(.system(size: 34))
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
-
-
+                
+                
                 
                 Image(progress.imageName(for: selectedBuddy))
                 
@@ -62,84 +82,82 @@ struct buddyPage: View {
                         x: 0,
                         y: 4
                     )
-
-
+                
+                
                 VStack(spacing: 4) {
-
+                    
                     Text(selectedBuddy)
-
+                    
                         .font(.system(size: 20))
                         .fontWeight(.bold)
                         .foregroundStyle(.primary)
-
+                    
                     Text("Stage \(progress.stage) of 3")
                         .font(.system(size: 14))
                         .foregroundStyle(.primary)
                 }
-
+                
                 // test button to be removed
-//                Button("Test: next day") {
-//                    progress.completeDay()
-//                }
-//                .font(.system(size: 14))
-//                .foregroundStyle(.primary)
-//                .padding(.horizontal, 16)
-//                .padding(.vertical, 8)
-//                .background(Color.khaki.opacity(0.3))
-//                .cornerRadius(12)
-
-
-
+                //                Button("Test: next day") {
+                //                    progress.completeDay()
+                //                }
+                //                .font(.system(size: 14))
+                //                .foregroundStyle(.primary)
+                //                .padding(.horizontal, 16)
+                //                .padding(.vertical, 8)
+                //                .background(Color.khaki.opacity(0.3))
+                //                .cornerRadius(12)
+                
+                
+                
                 Spacer()
-// Change body display
+                // Change body display
                 Text("Change Buddy")
                     .font(.system(size: 15))
                     .fontWeight(.regular)
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading,20)
-
-
+                
+                
                 
                 ScrollView(.horizontal, showsIndicators: false){
-
-
-
+                    
+                    
+                    
                     HStack(spacing:12){
-
-                       // choose the pet button already activated
+                        
+                        // choose the pet button already activated
                         // Create a separate selectable card for each Buddy
-                        ForEach(buddies, id: \.self) { buddy in
-
+                        ForEach(Buddy.all) { buddy in
+                            
                             Button {
-                               
-                                selectedBuddy = buddy
+                                
+                                selectedBuddy = buddy.name
                             } label: {
                                 VStack {
-
-                                  
-                                    Image(progress.imageName(for: buddy))
+                                    Image(progress.imageName(for: buddy.name))
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 119.17, height: 130)
-
+                                    
                                     // card name
-                                    Text(buddy)
+                                    Text(buddy.name)
                                         .font(.system(size: 20))
                                         .fontWeight(.medium)
                                         .foregroundStyle(Color.oliveDark)
-
+                                    
                                 }
-                               
+                                
                                 .frame(width: 157.72, height: 183.54)
                                 .background(Color.sand)
                                 .cornerRadius(23)
-                               // the cosen card will have olive green frame
+                                // the cosen card will have olive green frame
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 23)
                                         .strokeBorder(
                                             Color.oliveDark,
-                                            lineWidth: selectedBuddy == buddy ? 3 : 0
+                                            lineWidth:selectedBuddy == buddy.name ? 3 : 0
                                         )
                                 )
                                 
@@ -150,32 +168,38 @@ struct buddyPage: View {
                                     y: 4
                                 )
                             }
-                           
+                            
                             .buttonStyle(.plain)
                         }
-                      
-
+                        
+                        
                     }
                     .padding(.horizontal, 16)
-
+                    
                 }
-
+                
                 Spacer()
-
+                
             }
-
-
-          // BACK BUTTON to be connected to todays task page
-            BackButton()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding(.leading, 20)
-                .padding(.top, 8)
-
+            
+            
+            // BACK BUTTON to be connected to todays task page
+            VStack {
+                HStack {
+                    ContentView()
+                    BackButton()
+                    
+                    Spacer()
+                }
+                Spacer()
+            }
+            .padding(.leading, 12)
+            
         }
-
     }
-
 }
+
+    
 
 
 
