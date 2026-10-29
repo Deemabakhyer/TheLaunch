@@ -56,19 +56,8 @@ struct CustomizeRoutine: View {
                     // Skip
                     HStack {
                         Spacer()
-                        Button {
+                        SkipButton {
                             print("Skip tapped")
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text("Skip")
-                                Image(systemName: "chevron.right")
-                            }
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(Color(hex: "#000000"))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.sand.opacity(0.7))
-                            .clipShape(Capsule())
                         }
                     }
 
@@ -100,19 +89,9 @@ struct CustomizeRoutine: View {
             }
 
             // زر Next
-            Button {
+            NextButton(isEnabled: hasSelection) {
                 print("Next tapped")
-            } label: {
-                Text("Next")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 58)
-                    .background(hasSelection ? Color.oliveDark : Color.khaki)
-                    .clipShape(Capsule())
             }
-            .disabled(!hasSelection)
-            .padding(.horizontal, 20)
             .padding(.bottom, 20)
         }
     }
@@ -136,24 +115,29 @@ struct SectionView: View {
             .padding(.bottom, 4)
 
             ForEach(section.tasks) { task in
-                TaskRow(
-                    task: task,
-                    isSelected: selectedTasks.contains(task.id)
-                ) {
+                Button {
                     if selectedTasks.contains(task.id) {
                         selectedTasks.remove(task.id)
                     } else {
                         selectedTasks.insert(task.id)
                     }
+                } label: {
+                    TaskField(
+                        title: task.title,
+                        icon: task.icon,
+                        isSelected: selectedTasks.contains(task.id),
+                        showsToggle: true
+                    )
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: "#4D4D4D"))
                 }
+                .buttonStyle(.plain)
             }
 
             CustomRow(text: $customText)
         }
     }
 }
-
-
 
 // MARK: - صف Custom
 struct CustomRow: View {
@@ -167,11 +151,13 @@ struct CustomRow: View {
             Image(systemName: text.isEmpty ? "plus.square" : "checkmark.square.fill")
                 .font(.system(size: 20))
         }
-        .font(.system(size: 18))
-        .foregroundColor(Color(hex: "#4D4D4D"))        .padding(.horizontal, 16)
-        .frame(height: 46)
+        .font(.system(size: 20))
+        .foregroundColor(Color(hex: "#4D4D4D"))
+        .padding(.horizontal, 20)
+        .frame(height: 55)
         .overlay(
-            Capsule().stroke(Color.oliveDark, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(Color.oliveDark, lineWidth: 1)
         )
     }
 }
