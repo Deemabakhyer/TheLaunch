@@ -9,52 +9,52 @@ import SwiftUI
 // TO BE CONNECTED TO ALL TASK PAGE  AND DAILY ROUTINE WHEN ALLDONE
 struct AllRoutinesDoneView: View {
     
-// to close the page
+    // to close the page
     @Environment(\.dismiss) private var dismiss
-// save buddy name
-// GET THE SELECTDE BUDDY FROM BUDY PAGE "PARTIALLY CONNECTED "
+    // save buddy name
+    // GET THE SELECTDE BUDDY FROM BUDY PAGE "PARTIALLY CONNECTED "
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
     
-// make the pet progress changes
-// Buddy's growth stage from BuddyProgress.swift
+    // make the pet progress changes
+    // Buddy's growth stage from BuddyProgress.swift
     @ObservedObject private var progress = BuddyProgress.shared
-
+    
     // to change the level
     private var congratulationsImageName: String {
         if progress.stage == 1 {
             return selectedBuddy + "Young"
-            } else {
-                return progress.imageName(for: selectedBuddy)
-            }
+        } else {
+            return progress.imageName(for: selectedBuddy)
         }
+    }
     
     //for colores = support light and dark mode
     @Environment(\.colorScheme) private var colorScheme
-
+    
     
     var body: some View {
         
-
+        
         ZStack {
             
-
+            
             
             (colorScheme == .dark ? Color.oliveDark : Color.cream)
-//make the color spread
+            //make the color spread
                 .ignoresSafeArea()
-
+            
             VStack(spacing: 28) {
                 
-
+                
                 Spacer()
-
-              
+                
+                
                 Text("ALL ROUTINES\nARE DONE!")
                     .font(.system(size: 30))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.black)
-
+                
                 // Pet picture and Text
                 ZStack {
                     
@@ -62,32 +62,32 @@ struct AllRoutinesDoneView: View {
                     Image(progress.stage == 3
                           ? selectedBuddy + "Grown"
                           : selectedBuddy + "Young")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200, height: 240)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 240)
                 }
                 .frame(width: 260, height: 240)
-
+                
                 
                 Text( progress.stage == 3
                       ? "Your Buddy\nis fully grown!"
                       : "Your Buddy\nis growing!"
-                                )
-                     .font(.system(size: 28))
-                     .fontWeight(.medium)
-                     .multilineTextAlignment(.center)
-                     .foregroundStyle(.primary)
-
+                )
+                .font(.system(size: 28))
+                .fontWeight(.medium)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.primary)
+                
                 Spacer()
                 Spacer()
-
+                
             } // END main VStack
             .padding(.horizontal, 24)
-
+            
             // close button (X) to be connected to All tasks page OR MAIN PAGE
             // position
             .overlay(alignment: .topLeading) {
-          // button action
+                // button action
                 Button {
                     dismiss()
                 } label: {
@@ -95,22 +95,22 @@ struct AllRoutinesDoneView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
-                  //  OPACITY OF THE X BUTTON
-                      // .background(Color.black.opacity(0.08))
+                    //  OPACITY OF THE X BUTTON
+                    // .background(Color.black.opacity(0.08))
                     // to be checked
                         .background(Color.khaki.opacity(0.15))
                         .clipShape(Circle())
                 } // END Button
                 .buttonStyle(.plain)
-               // .padding(.leading, 16)
+                // .padding(.leading, 16)
                 .padding(.top, 16)
-
+                
             }
-
+            
         }
-
+        
     }
-
+    
 }
 
 // 🔴🔴🔴 START - FUTURE PAGE CONNECTIONS
@@ -148,12 +148,12 @@ struct ConfettiPiece {
 
 // Confetti
 struct ConfettiView: View {
-
-  
+    
+    
     let orange = Color.confettiOrange
     let teal   = Color.confettiTeal
     let pink   = Color.confettiPink
-
+    
     // x, y = position from the top-left corner of the area
     var pieces: [ConfettiPiece] {
         [
@@ -171,7 +171,7 @@ struct ConfettiView: View {
             ConfettiPiece(x: 225, y: 223, color: orange, kind: 0, rotation: 0)
         ]
     }
-
+    
     var body: some View {
         ZStack {
             ForEach(0..<pieces.count, id: \.self) { i in
@@ -180,7 +180,7 @@ struct ConfettiView: View {
         }
         .frame(width: 260, height: 240)
     }
-
+    
     @ViewBuilder
     private func piece(_ p: ConfettiPiece) -> some View {
         Group {

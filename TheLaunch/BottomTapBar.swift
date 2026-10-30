@@ -10,7 +10,7 @@ import SwiftUI
 struct BottomTapBar: View {
     let titles: [String]
     @Binding var selection: String
-
+    
     var body: some View {
         HStack(spacing: 0) {
             ForEach(titles, id: \.self) { title in
@@ -50,7 +50,7 @@ struct BottomTapBar: View {
 
 private struct BottomTapBarPreview: View {
     @State private var selected = "Morning"
-
+    
     var body: some View {
         BottomTapBar(
             titles: ["Morning", "Afternoon", "Evening"],

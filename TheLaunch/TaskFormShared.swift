@@ -26,26 +26,26 @@ extension DayPeriod {
 
 struct TaskDraft: Equatable {
     static let notesLimit = 60
-
+    
     var name = ""
     var notes = ""
     var period: DayPeriod?
     var date: Date? // nil = Today chip selected
-
+    
     init() {}
-
+    
     init(_ task: TaskItem) {
         name = task.name
         notes = task.notes
         period = task.period
         date = Calendar.current.isDateInToday(task.date) ? nil : task.date
     }
-
+    
     var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
-            && period != nil
+        && period != nil
     }
-
+    
     func makeTask(
         id: UUID = UUID(),
         isDone: Bool = false
@@ -75,7 +75,7 @@ extension View {
                     .stroke(Color.khaki, lineWidth: 1)
             )
     }
-
+    
     func taskPillStyle(isSelected: Bool) -> some View {
         self
             .font(.system(size: 18, weight: .medium))
@@ -97,7 +97,7 @@ struct TaskFormScreen<Footer: View>: View {
     let title: String
     @Binding var draft: TaskDraft
     @ViewBuilder var footer: () -> Footer
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -105,7 +105,7 @@ struct TaskFormScreen<Footer: View>: View {
                     name: $draft.name,
                     notes: $draft.notes
                 )
-
+                
                 TaskPeriodPicker(selection: $draft.period)
                 TaskDayPicker(date: $draft.date)
             }
@@ -113,9 +113,9 @@ struct TaskFormScreen<Footer: View>: View {
             .padding(.top, 10)
             .padding(.bottom, 20)
         }
-        #if os(iOS)
+#if os(iOS)
         .scrollDismissesKeyboard(.interactively)
-        #endif
+#endif
         .background(Color.cream.ignoresSafeArea())
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 12) {
@@ -134,9 +134,9 @@ struct TaskFormScreen<Footer: View>: View {
             }
         }
         .tint(Color.black)
-        #if os(iOS)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
-        #endif
+#endif
     }
 }
 
@@ -145,18 +145,18 @@ struct TaskFormScreen<Footer: View>: View {
 struct TaskSectionTitle: View {
     let title: String
     var isOptional = false
-
+    
     init(_ title: String, isOptional: Bool = false) {
         self.title = title
         self.isOptional = isOptional
     }
-
+    
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(title)
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.black)
-
+            
             if isOptional {
                 Text("Optional")
                     .font(.system(size: 12))
@@ -171,13 +171,13 @@ struct TaskSectionTitle: View {
 struct TaskInputCard: View {
     @Binding var name: String
     @Binding var notes: String
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-
+            
             VStack(alignment: .leading, spacing: 8) {
                 TaskSectionTitle("What do you want to do?")
-
+                
                 TextField(
                     "",
                     text: $name,
@@ -187,10 +187,10 @@ struct TaskInputCard: View {
                 )
                 .taskFieldStyle()
             }
-
+            
             VStack(alignment: .leading, spacing: 8) {
                 TaskSectionTitle("Notes", isOptional: true)
-
+                
                 TextField(
                     "",
                     text: $notes,
@@ -208,7 +208,7 @@ struct TaskInputCard: View {
                         notes = String(newValue.prefix(TaskDraft.notesLimit))
                     }
                 }
-
+                
                 Text("\(notes.count)/\(TaskDraft.notesLimit)")
                     .font(.system(size: 16))
                     .foregroundStyle(Color.black.opacity(0.6))
@@ -231,11 +231,11 @@ struct TaskInputCard: View {
 
 struct TaskPeriodPicker: View {
     @Binding var selection: DayPeriod?
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             TaskSectionTitle("Time of day")
-
+            
             HStack(spacing: 12) {
                 ForEach(DayPeriod.allCases, id: \.self) { period in
                     TaskPeriodButton(
@@ -254,7 +254,7 @@ private struct TaskPeriodButton: View {
     let period: DayPeriod
     let isSelected: Bool
     let action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             VStack(spacing: 10) {
@@ -267,7 +267,7 @@ private struct TaskPeriodButton: View {
                             Color.sage.opacity(isSelected ? 0.8 : 1)
                         )
                     )
-
+                
                 Text(period.title)
                     .font(.system(size: 18, weight: .medium))
                     .foregroundStyle(
@@ -295,17 +295,17 @@ struct TaskDayPicker: View {
     /// nil means "Today"
     @Binding var date: Date?
     @State private var isCalendarOpen = false
-
+    
     private static let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM, yyyy"
         return formatter
     }()
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             TaskSectionTitle("Which day?", isOptional: true)
-
+            
             HStack(spacing: 10) {
                 Button {
                     date = nil
@@ -314,7 +314,7 @@ struct TaskDayPicker: View {
                     Text("Today")
                         .taskPillStyle(isSelected: date == nil)
                 }
-
+                
                 Button {
                     if date == nil {
                         date = Date()
@@ -323,16 +323,16 @@ struct TaskDayPicker: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "calendar")
-
+                        
                         Text(
                             date.map(Self.formatter.string(from:))
-                                ?? "Pick date"
+                            ?? "Pick date"
                         )
                     }
                     .taskPillStyle(isSelected: date != nil)
                 }
             }
-
+            
             if isCalendarOpen {
                 DatePicker(
                     "",

@@ -10,11 +10,11 @@ struct SaveButton: View {
     // this code will connect the botton to other pages
     var action: () ->  Void
     var isEnabled:Bool = false
-
+    
     var body: some View {
         Button("Save"){
             action()
-            }
+        }
         //.custom("Helvetica-Bold" لو نفس الي بسكتش
         .font(.system(size: 20,weight: .bold))
         //green frame size
@@ -22,7 +22,7 @@ struct SaveButton: View {
         //frame color
         .background(
             isEnabled
-           ? Color("Primary-buttons")
+            ? Color("Primary-buttons")
             :Color("Deactivated-buttons"))
         .foregroundColor(.white)
         .cornerRadius(36)

@@ -7,12 +7,12 @@
 import SwiftUI
 
 struct TaskField: View {
-
+    
     var title: String = ""
     var icon: String? = nil
     var isSelected: Bool = false
     var showsToggle: Bool = false 
-
+    
     var body: some View {
         HStack(spacing: 12) {
             if let icon {

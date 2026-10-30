@@ -14,6 +14,7 @@ struct HeaderView: View {
             Text("Today's Tasks")
                 .font(.system(size: 32, weight: .bold))
             Spacer()
+            
             Button(action: onProfileTap) {
                 Image(.moss)
                     .resizable()
@@ -29,7 +30,7 @@ struct HeaderView: View {
 
 struct NewTaskButton: View {
     var action: () -> Void = {}
-
+    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
@@ -38,7 +39,7 @@ struct NewTaskButton: View {
                     .font(.system(size: 22, weight: .light))
                     .frame(width: 62, height: 34)
                     .overlay(Capsule().stroke(Color(white: 0.25), lineWidth: 2))
-
+                
                 Text("Add New Task")
                     .font(.system(size: 20))
                     .foregroundStyle(Color.oliveDark)
@@ -55,7 +56,7 @@ struct TaskStackCard: View {
     let total: Int
     let isDone: Bool
     var onToggle: () -> Void = {}
-
+    
     // card background
     private func layer() -> some View {
         RoundedRectangle(cornerRadius: 28)
@@ -63,15 +64,15 @@ struct TaskStackCard: View {
             .overlay(RoundedRectangle(cornerRadius: 28)
                 .stroke(Color.cream, lineWidth: 6))
     }
-
+    
     var body: some View {
         ZStack(alignment: .top) {
-
+            
             // Back layers, only drawn if there are enough tasks
             // Offsetting them downward makes their edges peek out below the front card
             if total > 2 { layer().frame(height: 170).offset(y: 44) }
             if total > 1 { layer().frame(height: 170).offset(y: 22) }
-
+            
             // front card with its content placed on top
             layer().frame(height: 170)
                 .overlay(alignment: .topLeading) {
@@ -81,7 +82,7 @@ struct TaskStackCard: View {
                             Spacer()
                             Text("\(index)/\(total)").font(.system(size: 20, weight: .light))
                         }
-
+                        
                         // Checkbox on the left, task text on the right.
                         HStack(alignment: .top, spacing: 12) {
                             Button(action: onToggle) {
@@ -90,7 +91,7 @@ struct TaskStackCard: View {
                                     .opacity(0.8)
                             }
                             .buttonStyle(.plain)
-
+                            
                             VStack(alignment: .leading, spacing: 10) {
                                 Text(title)
                                     .font(.system(size: 26, weight: .bold))
@@ -118,7 +119,7 @@ struct TaskCard: View {
     let isDone: Bool
     var onToggle: () -> Void = {}
     var onEdit: () -> Void = {}
-
+    
     var body: some View {
         RoundedRectangle(cornerRadius: 28)
             .fill(Color.oliveDark)
@@ -133,7 +134,7 @@ struct TaskCard: View {
                             .opacity(0.8)
                     }
                     .buttonStyle(.plain)
-
+                    
                     VStack(alignment: .leading, spacing: 10) {
                         Text(title)
                             .font(.system(size: 24, weight: .bold))
@@ -163,11 +164,12 @@ struct TaskCard: View {
 }
 
 struct TodayPage: View {
-
+    
     @State private var selection: DayPeriod = .morning
     @State private var isExpanded = false
     @State private var navigateToAdd = false
     @State private var navigateToEdit = false
+    @State private var showBuddyPage = false
     @State private var taskToEdit: TaskItem?
     @State private var tasks = [
         TaskItem(name: "Work on App Design", notes: "Draw the lo-fi on Paper", period: .morning, date: Date()),
@@ -177,25 +179,25 @@ struct TodayPage: View {
         TaskItem(name: "Team Sync", notes: "Share progress", period: .afternoon, date: Date()),
         TaskItem(name: "Read", notes: "20 pages", period: .evening, date: Date())
     ]
-
+    
     // Only today's tasks that belong to the selected period.
     // Recomputed automatically whenever `tasks` or `selection` changes
     private var currentTasks: [TaskItem] {
         tasks.filter { $0.period == selection && Calendar.current.isDateInToday($0.date) }
     }
-
+    
     private func toggle(_ task: TaskItem) {
         guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         withAnimation(.easeInOut(duration: 0.2)) {
             tasks[i].isDone.toggle()
         }
     }
-
+    
     // Titles for the segmented control (e.g. ["Morning", "Afternoon", "Evening"])
     private var segmentTitles: [String] {
         DayPeriod.allCases.map(\.title)
     }
-
+    
     // The segmented control works with Strings, but our state is a DayPeriod.
     // This Binding translates between the two in both directions.
     private var segmentBinding: Binding<String> {
@@ -210,16 +212,17 @@ struct TodayPage: View {
             }
         )
     }
-
+    
     var body: some View {
-
+        
         NavigationStack {
             ZStack {
                 Color.cream.ignoresSafeArea()
-
+                
                 VStack(alignment: .leading, spacing: 24) {
-                    HeaderView()
-
+                    HeaderView(onProfileTap: {
+                        showBuddyPage = true
+                    })
                     BottomTapBar(
                         titles: segmentTitles,
                         selection: segmentBinding
@@ -228,7 +231,7 @@ struct TodayPage: View {
                         navigateToAdd = true
                     }
                     .padding(.leading, 4)
-
+                    
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 16) {
                             if let first = currentTasks.first {
@@ -258,7 +261,7 @@ struct TodayPage: View {
                                     .transition(.opacity)
                                 }
                             }
-
+                            
                             Button {
                                 withAnimation(.spring(duration: 0.4)) {
                                     isExpanded.toggle()
@@ -277,6 +280,9 @@ struct TodayPage: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 8)
+            }
+            .navigationDestination(isPresented: $showBuddyPage) {
+                buddyPage()
             }
             .navigationDestination(isPresented: $navigateToAdd) {
                 AddTaskView { newTask in

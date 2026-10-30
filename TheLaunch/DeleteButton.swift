@@ -9,18 +9,18 @@ import SwiftUI
 
 struct DeleteButton: View {
     @Environment(\.isEnabled) private var isEnabled
-
+    
     let title: String
     let action: () -> Void
-
+    
     public let backgroundColor = Color(.backgroundCream)
     public let accentColor     = Color(.danger)
-
+    
     init(title: String = "Delete", action: @escaping () -> Void) {
         self.title = title
         self.action = action
     }
-
+    
     var body: some View {
         Button(action: action) {
             Text(title)

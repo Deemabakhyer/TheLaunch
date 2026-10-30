@@ -13,7 +13,7 @@ import Combine
 // enum for fixed values
 enum DayPeriod: CaseIterable {
     case morning, afternoon, evening
-
+    
     var title: String {
         switch self {
         case .morning:   return "Morning"
@@ -21,7 +21,7 @@ enum DayPeriod: CaseIterable {
         case .evening:   return "Evening"
         }
     }
-
+    
     var icon: String {
         switch self {
         case .morning:   return "sun.max"
@@ -40,9 +40,9 @@ struct TaskItem: Identifiable, Hashable {
     var notes: String
     var period: DayPeriod
     var date: Date
-
+    
     var isDone: Bool
-
+    
     init(
         id: UUID = UUID(),
         name: String,
@@ -51,7 +51,7 @@ struct TaskItem: Identifiable, Hashable {
         date: Date,
         isDone: Bool = false
     ) {
-
+        
         self.id = id
         self.name = name
         self.notes = notes
@@ -64,18 +64,18 @@ struct TaskItem: Identifiable, Hashable {
 // a class handles the data of tasks and how they are managed
 // ObservableObject can only be adopted by classes, not structs. It's SwiftUI's mechanism for "tell me when this object changes so I can redraw." It relies on object identity (the same object over time), which structs don't have
 final class TaskStore: ObservableObject {
-
+    
     @Published var tasks: [TaskItem] = []
-
+    
     init() {
         let cal = Calendar.current
         let today = Date()
         let yesterday = cal.date(byAdding: .day, value: -1, to: today) ?? today
-
+        
         func make(_ name: String, _ period: DayPeriod, _ date: Date, done: Bool) -> TaskItem {
             TaskItem(name: name, period: period, date: date, isDone: done)
         }
-
+        
         // Yesterday + Today: one done, one pending in every period
         for day in [yesterday, today] {
             for period in DayPeriod.allCases {
@@ -83,7 +83,7 @@ final class TaskStore: ObservableObject {
                 tasks.append(make("Task name", period, day, done: false))
             }
         }
-
+        
         // Scheduled samples (relative to today so they always appear in the future)
         if let in3Days = cal.date(byAdding: .day, value: 3, to: today),
            let in7Days = cal.date(byAdding: .day, value: 7, to: today) {
@@ -91,18 +91,18 @@ final class TaskStore: ObservableObject {
             tasks.append(make("Task name", .morning,   in7Days, done: false))
         }
     }
-
-
+    
+    
     // checks on which day and which period of the day this task belongs to
     func tasks(on date: Date, period: DayPeriod) -> [TaskItem] {
         tasks.filter { $0.period == period && Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
-
+    
     // checks if a picked date contains tasks
     func hasTasks(on date: Date) -> Bool {
         tasks.contains { Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
-
+    
     // handles the check task logic
     func toggle(_ task: TaskItem) {
         guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
@@ -123,7 +123,7 @@ struct MyTasksView: View {
     @StateObject private var store = TaskStore()
     @State private var segment: TaskSegment = .scheduled
     @State private var selectedDate = Date()
-
+    
     private var displayedDate: Date {
         let cal = Calendar.current
         switch segment {
@@ -135,39 +135,39 @@ struct MyTasksView: View {
             return selectedDate
         }
     }
-
+    
     private var segmentTitles: [String] {
         TaskSegment.allCases.map { $0.rawValue }
     }
-
+    
     private var segmentBinding: Binding<String> {
         Binding<String>(
             get: { segment.rawValue },
             set: { segment = TaskSegment(rawValue: $0) ?? .today }
         )
     }
-
+    
     var body: some View {
         ZStack {
             Color.cream.ignoresSafeArea()
-
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("My Tasks")
                         .font(.largeTitle.bold())
                         .foregroundStyle(Color.black)
                         .padding(.top, 8)
-
+                    
                     // custom tab bar component
                     BottomTapBar(
                         titles: segmentTitles,
                         selection: segmentBinding
                     )
-
+                    
                     if segment == .scheduled {
                         scheduledSection
                     }
-
+                    
                     // This loops over the three day periods and creates one PeriodSection view for each.
                     ForEach(DayPeriod.allCases, id: \.self) { period in
                         PeriodSection(
@@ -183,12 +183,12 @@ struct MyTasksView: View {
             .animation(.easeInOut(duration: 0.2), value: segment)
         }
     }
-
+    
     // Split out of `body` to keep the expression simple for the compiler
     @ViewBuilder
     private var scheduledSection: some View {
-
-
+        
+        
         // the native calendar component
         DatePicker(
             "Select date",
@@ -198,9 +198,9 @@ struct MyTasksView: View {
         .datePickerStyle(.graphical)
         .labelsHidden()
         .tint(Color.oliveDark)
-
+        
         Divider().overlay(Color.sand)
-
+        
         if !store.hasTasks(on: selectedDate) {
             Text("No Tasks Scheduled")
                 .italic()
@@ -218,14 +218,14 @@ struct PeriodSection: View {
     let period: DayPeriod
     let tasks: [TaskItem]
     let onToggle: (TaskItem) -> Void
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Label(period.title, systemImage: period.icon)
                 .font(.title3)
                 .foregroundStyle(Color.black)
-
-
+            
+            
             ForEach(tasks) { task in
                 TaskRow(task: task) { onToggle(task) }
             }
@@ -237,7 +237,7 @@ struct PeriodSection: View {
 struct TaskRow: View {
     let task: TaskItem
     let onToggle: () -> Void
-
+    
     private var checkButton: some View {
         Button(action: onToggle) {
             Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
@@ -247,7 +247,7 @@ struct TaskRow: View {
         .buttonStyle(.plain)
         .padding(.trailing, 12)
     }
-
+    
     var body: some View {
         TaskField(title: task.name)
             .strikethrough(task.isDone)
@@ -257,7 +257,7 @@ struct TaskRow: View {
             .animation(.easeInOut(duration: 0.2), value: task.isDone)
     }
 }
-    
+
 // MARK: - Preview
 
 #Preview {

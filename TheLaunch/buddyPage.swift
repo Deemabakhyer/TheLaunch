@@ -79,19 +79,6 @@ struct buddyPage: View {
                         .foregroundStyle(.primary)
                 }
                 
-                // test button to be removed
-                //                Button("Test: next day") {
-                //                    progress.completeDay()
-                //                }
-                //                .font(.system(size: 14))
-                //                .foregroundStyle(.primary)
-                //                .padding(.horizontal, 16)
-                //                .padding(.vertical, 8)
-                //                .background(Color.khaki.opacity(0.3))
-                //                .cornerRadius(12)
-                
-                
-                
                 Spacer()
                 // Change body display
                 Text("Change Buddy")
@@ -177,30 +164,28 @@ struct buddyPage: View {
             .padding(.leading, 12)
             
         }
+        .navigationBarBackButtonHidden(true)
+        
     }
-}
-
     
-
-
-
+}
 
 // Buddy progress logic
 @MainActor
 // ObservableObject makes the UI refresh
 class BuddyProgress: ObservableObject {
-
+    
     static let shared = BuddyProgress()
-// notify ObservableObject there is changes
+    // notify ObservableObject there is changes
     @Published var stage: Int = UserDefaults.standard.integer(forKey: "buddyStage") == 0
-        ? 1
-        : UserDefaults.standard.integer(forKey: "buddyStage") {
+    ? 1
+    : UserDefaults.standard.integer(forKey: "buddyStage") {
         didSet {
             UserDefaults.standard.set(stage, forKey: "buddyStage")
         }
     }
-
-
+    
+    
     func imageName(for buddy: String) -> String {
         switch stage {
         case 2:
@@ -211,7 +196,7 @@ class BuddyProgress: ObservableObject {
             return buddy
         }
     }
-
+    
     func completeDay() {
         if stage < 3 {
             stage += 1
@@ -219,7 +204,7 @@ class BuddyProgress: ObservableObject {
             stage = 1
         }
     }
-
+    
 }
 
 

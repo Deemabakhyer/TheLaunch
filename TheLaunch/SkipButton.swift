@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SkipButton: View {
     var action: (() -> Void)
-
+    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 4) {
