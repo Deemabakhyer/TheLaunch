@@ -24,11 +24,12 @@ struct Buddy: Identifiable, Hashable {
 }
 
 // MARK: - Page
-
 struct ChooseABuddy: View {
     @State private var selected: Buddy? = nil
     @AppStorage("selectedBuddy") private var savedBuddy = ""
-    @State private var navigateToRoutine = false
+    
+    @AppStorage("hasCompletedOnboarding")
+    private var hasCompletedOnboarding = false
     
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -36,7 +37,6 @@ struct ChooseABuddy: View {
     ]
     
     var body: some View {
-        NavigationStack {
             ZStack {
                 Color.cream.ignoresSafeArea()
                 
@@ -47,7 +47,7 @@ struct ChooseABuddy: View {
                         Spacer()
                         
                         SkipButton {
-                            navigateToRoutine = true
+                            hasCompletedOnboarding = true
                         }
                     }
                     .padding(.bottom, 16)
@@ -80,16 +80,12 @@ struct ChooseABuddy: View {
                     NextButton(isEnabled: selected != nil) {
                         guard let selected else { return }
                         savedBuddy = selected.name
-                        navigateToRoutine = true
+                        hasCompletedOnboarding = true
                     }
                     .padding(.bottom, 20)
                 }
                 .padding(.horizontal, 20)
             }
-            .navigationDestination(isPresented: $navigateToRoutine) {
-                CustomizeRoutine()
-            }
-        }
     }
 }
 

@@ -171,26 +171,16 @@ struct TodayPage: View {
     @State private var navigateToEdit = false
     @State private var showBuddyPage = false
     @State private var taskToEdit: TaskItem?
-    @State private var tasks = [
-        TaskItem(name: "Work on App Design", notes: "Draw the lo-fi on Paper", period: .morning, date: Date()),
-        TaskItem(name: "Plan the Week", notes: "List top 3 goals", period: .morning, date: Date()),
-        TaskItem(name: "Reply to Emails", notes: "Clear the inbox", period: .morning, date: Date()),
-        TaskItem(name: "Team Sync", notes: "Share progress", period: .afternoon, date: Date()),
-        TaskItem(name: "Team Sync", notes: "Share progress", period: .afternoon, date: Date()),
-        TaskItem(name: "Read", notes: "20 pages", period: .evening, date: Date())
-    ]
+    @Environment(TaskStore.self) private var store
     
     // Only today's tasks that belong to the selected period.
     // Recomputed automatically whenever `tasks` or `selection` changes
     private var currentTasks: [TaskItem] {
-        tasks.filter { $0.period == selection && Calendar.current.isDateInToday($0.date) }
+        store.tasks(on: Date(), period: selection)
     }
     
     private func toggle(_ task: TaskItem) {
-        guard let i = tasks.firstIndex(where: { $0.id == task.id }) else { return }
-        withAnimation(.easeInOut(duration: 0.2)) {
-            tasks[i].isDone.toggle()
-        }
+        withAnimation(.easeInOut(duration: 0.2)) { store.toggle(task) }
     }
     
     // Titles for the segmented control (e.g. ["Morning", "Afternoon", "Evening"])
@@ -215,102 +205,124 @@ struct TodayPage: View {
     
     var body: some View {
         
-        NavigationStack {
-            ZStack {
-                Color.cream.ignoresSafeArea()
+        ZStack {
+            Color.cream.ignoresSafeArea()
+            
+            VStack(alignment: .leading, spacing: 24) {
                 
-                VStack(alignment: .leading, spacing: 24) {
-                    HeaderView(onProfileTap: {
-                        showBuddyPage = true
-                    })
-                    BottomTapBar(
-                        titles: segmentTitles,
-                        selection: segmentBinding
-                    )
-                    NewTaskButton {
-                        navigateToAdd = true
-                    }
-                    .padding(.leading, 4)
+                HeaderView(onProfileTap: {
+                    showBuddyPage = true
+                })
+                
+                BottomTapBar(
+                    titles: segmentTitles,
+                    selection: segmentBinding
+                )
+                
+                NewTaskButton {
+                    navigateToAdd = true
+                }
+                .padding(.leading, 4)
+                
+                ScrollView(showsIndicators: false) {
                     
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 16) {
-                            if let first = currentTasks.first {
-                                if isExpanded {
-                                    ForEach(currentTasks) { task in
-                                        TaskCard(
-                                            title: task.name,
-                                            subtitle: task.notes,
-                                            isDone: task.isDone,
-                                            onToggle: { toggle(task) },
-                                            onEdit: {
-                                                taskToEdit = task
-                                                navigateToEdit = true
-                                            }
-                                        )
-                                        .transition(.move(edge: .top).combined(with: .opacity))
-                                    }
-                                } else {
-                                    TaskStackCard(
-                                        title: first.name,
-                                        subtitle: first.notes,
-                                        index: 1,
-                                        total: currentTasks.count,
-                                        isDone: first.isDone,
-                                        onToggle: { toggle(first) }
-                                    )
-                                    .transition(.opacity)
-                                }
-                            }
+                    VStack(spacing: 16) {
+                        
+                        if let first = currentTasks.first {
                             
-                            Button {
-                                withAnimation(.spring(duration: 0.4)) {
-                                    isExpanded.toggle()
+                            if isExpanded {
+                                
+                                ForEach(currentTasks) { task in
+                                    
+                                    TaskCard(
+                                        title: task.name,
+                                        subtitle: task.notes,
+                                        isDone: task.isDone,
+                                        onToggle: {
+                                            toggle(task)
+                                        },
+                                        onEdit: {
+                                            taskToEdit = task
+                                            navigateToEdit = true
+                                        }
+                                    )
+                                    .transition(
+                                        .move(edge: .top)
+                                        .combined(with: .opacity)
+                                    )
                                 }
-                            } label: {
-                                Image(systemName: "chevron.down")
-                                    .font(.system(size: 22, weight: .heavy))
-                                    .foregroundStyle(Color.oliveDark)
-                                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                                    .frame(maxWidth: .infinity, minHeight: 44)
-                                    .contentShape(Rectangle())
+                                
+                            } else {
+                                
+                                TaskStackCard(
+                                    title: first.name,
+                                    subtitle: first.notes,
+                                    index: 1,
+                                    total: currentTasks.count,
+                                    isDone: first.isDone,
+                                    onToggle: {
+                                        toggle(first)
+                                    }
+                                )
+                                .transition(.opacity)
                             }
-                            .buttonStyle(.plain)
                         }
+                        
+                        Button {
+                            withAnimation(.spring(duration: 0.4)) {
+                                isExpanded.toggle()
+                            }
+                        } label: {
+                            
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 22, weight: .heavy))
+                                .foregroundStyle(Color.oliveDark)
+                                .rotationEffect(
+                                    .degrees(isExpanded ? 180 : 0)
+                                )
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 8)
             }
-            .navigationDestination(isPresented: $showBuddyPage) {
-                buddyPage()
-            }
-            .navigationDestination(isPresented: $navigateToAdd) {
-                AddTaskView { newTask in
-                    tasks.append(newTask)
-                }
-            }
-            .navigationDestination(isPresented: $navigateToEdit) {
-                if let task = taskToEdit {
-                    EditTaskView(
-                        task: task,
-                        onSave: { updated in
-                            if let i = tasks.firstIndex(where: { $0.id == updated.id }) {
-                                tasks[i] = updated
-                            }
-                        },
-                        onDelete: {
-                            tasks.removeAll { $0.id == task.id }
-                        }
-                    )
-                }
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
+        }
+        
+        // MARK: - Navigation
+        
+        .navigationDestination(isPresented: $showBuddyPage) {
+            buddyPage()
+        }
+        
+        .navigationDestination(isPresented: $navigateToAdd) {
+            AddTaskView()
+        }
+        
+        .navigationDestination(isPresented: $navigateToEdit) {
+            
+            if let task = taskToEdit {
+                
+                EditTaskView(
+                    task: task,
+                    onSave: { updated in
+                        store.update(updated)
+                    },
+                    onDelete: {
+                        store.delete(task)
+                    }
+                )
             }
         }
         .onChange(of: selection) {
             isExpanded = false
         }
     }
+
 }
 
 #Preview {
-    TodayPage()
+    TodayPage().environment(TaskStore.preview)
 }

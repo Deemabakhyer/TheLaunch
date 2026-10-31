@@ -44,10 +44,6 @@ struct BottomTapBar: View {
     }
 }
 
-#Preview {
-    BottomTapBarPreview()
-}
-
 private struct BottomTapBarPreview: View {
     @State private var selected = "Morning"
     
@@ -59,4 +55,8 @@ private struct BottomTapBarPreview: View {
         .padding()
         .background(Color.white)
     }
+}
+
+#Preview {
+    BottomTapBarPreview()
 }

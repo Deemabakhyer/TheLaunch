@@ -9,19 +9,6 @@
 
 
 import SwiftUI
-
-// MARK: - Icons used by the form
-
-extension DayPeriod {
-    var formIcon: String {
-        switch self {
-        case .morning:   return "sun.max.fill"
-        case .afternoon: return "sun.haze.fill"
-        case .evening:   return "moon.fill"
-        }
-    }
-}
-
 // MARK: - Form state
 
 struct TaskDraft: Equatable {
@@ -98,6 +85,7 @@ struct TaskFormScreen<Footer: View>: View {
     @Binding var draft: TaskDraft
     @ViewBuilder var footer: () -> Footer
     
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -138,6 +126,7 @@ struct TaskFormScreen<Footer: View>: View {
         .navigationBarTitleDisplayMode(.inline)
 #endif
     }
+    
 }
 
 // MARK: - Section title
@@ -258,7 +247,7 @@ private struct TaskPeriodButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 10) {
-                Image(systemName: period.formIcon)
+                Image(systemName: period.icon)
                     .font(.system(size: 21))
                     .foregroundStyle(Color.white)
                     .frame(width: 51, height: 51)

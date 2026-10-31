@@ -17,12 +17,12 @@ struct BackButton: View {
             if let action = action {
                 action()
             } else {
-                dismiss() // العودة تلقائياً للشاشة السابقة
+                dismiss()
             }
         }) {
             Image(systemName: "chevron.left")
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(Color("Secondary-Text")) // يستدعي اللون من الـ Assets
+                .foregroundColor(Color("Secondary-Text"))
         }
     }
 }
