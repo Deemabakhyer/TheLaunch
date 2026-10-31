@@ -6,58 +6,40 @@
 
 import SwiftUI
 
-// TO BE CONNECTED TO ALL TASK PAGE  AND DAILY ROUTINE WHEN ALLDONE
 struct AllRoutinesDoneView: View {
     
     // to close the page
     @Environment(\.dismiss) private var dismiss
-    // save buddy name
-    // GET THE SELECTDE BUDDY FROM BUDY PAGE "PARTIALLY CONNECTED "
+    
+    // selected buddy from the buddy page
     @AppStorage("selectedBuddy") private var selectedBuddy = "Dusk"
     
-    // make the pet progress changes
     // Buddy's growth stage from BuddyProgress.swift
     @ObservedObject private var progress = BuddyProgress.shared
     
-    // to change the level
-    private var congratulationsImageName: String {
-        if progress.stage == 1 {
-            return selectedBuddy + "Young"
-        } else {
-            return progress.imageName(for: selectedBuddy)
-        }
-    }
-    
-    //for colores = support light and dark mode
+    // support light and dark mode
     @Environment(\.colorScheme) private var colorScheme
-    
     
     var body: some View {
         
-        
         ZStack {
             
-            
-            
             (colorScheme == .dark ? Color.oliveDark : Color.cream)
-            //make the color spread
                 .ignoresSafeArea()
             
             VStack(spacing: 28) {
                 
-                
                 Spacer()
-                
                 
                 Text("ALL ROUTINES\nARE DONE!")
                     .font(.system(size: 30))
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.black)
+                    // was .black, which is unreadable on the dark olive background
+                    .foregroundStyle(.primary)
                 
-                // Pet picture and Text
+                // Pet picture and confetti
                 ZStack {
-                    
                     ConfettiView()
                     Image(progress.stage == 3
                           ? selectedBuddy + "Grown"
@@ -68,11 +50,9 @@ struct AllRoutinesDoneView: View {
                 }
                 .frame(width: 260, height: 240)
                 
-                
-                Text( progress.stage == 3
-                      ? "Your Buddy\nis fully grown!"
-                      : "Your Buddy\nis growing!"
-                )
+                Text(progress.stage == 3
+                     ? "Your Buddy\nis fully grown!"
+                     : "Your Buddy\nis growing!")
                 .font(.system(size: 28))
                 .fontWeight(.medium)
                 .multilineTextAlignment(.center)
@@ -84,10 +64,8 @@ struct AllRoutinesDoneView: View {
             } // END main VStack
             .padding(.horizontal, 24)
             
-            // close button (X) to be connected to All tasks page OR MAIN PAGE
-            // position
+            // close button (X)
             .overlay(alignment: .topLeading) {
-                // button action
                 Button {
                     dismiss()
                 } label: {
@@ -95,46 +73,57 @@ struct AllRoutinesDoneView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
-                    //  OPACITY OF THE X BUTTON
-                    // .background(Color.black.opacity(0.08))
-                    // to be checked
                         .background(Color.khaki.opacity(0.15))
                         .clipShape(Circle())
                 } // END Button
                 .buttonStyle(.plain)
-                // .padding(.leading, 16)
                 .padding(.top, 16)
-                
             }
-            
         }
-        
     }
-    
 }
 
-// 🔴🔴🔴 START - FUTURE PAGE CONNECTIONS
-//
-// TODO - ALL TASKS PAGE:
-// When all daily routines are completed:
-// 1. Call BuddyProgress.shared.completeDay() once.
-// 2. Present AllRoutinesDoneView().
-// 3. Prevent reopening the congratulations page from
-//    advancing the Buddy again.
-//
-// TODO - MAIN PAGE:
-// Connect the main page to buddyPage() to show the
-// selected Buddy and its current growth stage.
-//
-// The main page can use the existing:
-// - @AppStorage("selectedBuddy")
-// - BuddyProgress.shared
-// - progress.imageName(for: selectedBuddy)
-//
-// Do not create another Buddy model or growth function.
-//
-// 🔴🔴🔴 END - FUTURE PAGE CONNECTIONS
+// MARK: - Auto-show when all tasks in a day are done
 
+/// Watches one day. When its last task gets checked, it advances the Buddy
+/// once and presents AllRoutinesDoneView.
+struct AllRoutinesDoneTrigger: ViewModifier {
+    
+    @Environment(TaskStore.self) private var store
+    let date: Date
+    
+    @State private var showAllDone = false
+    
+    // remembers which day already advanced the Buddy (prevents double rewards)
+    @AppStorage("lastRewardedDay") private var lastRewardedDay = ""
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: store.allDone(on: date)) { _, isAllDone in
+                guard isAllDone,
+                      Calendar.current.isDateInToday(date) else { return }
+                
+                let key = date.formatted(.iso8601.year().month().day())
+                guard key != lastRewardedDay else { return }
+                lastRewardedDay = key
+                
+                BuddyProgress.shared.completeDay()
+                showAllDone = true
+            }
+            .fullScreenCover(isPresented: $showAllDone) {
+                AllRoutinesDoneView()
+            }
+    }
+}
+
+extension View {
+    /// Shows the "all routines done" page when every task on `date` is checked.
+    func allRoutinesDoneCelebration(for date: Date) -> some View {
+        modifier(AllRoutinesDoneTrigger(date: date))
+    }
+}
+
+// MARK: - Confetti
 
 struct ConfettiPiece {
     let x: CGFloat
@@ -144,11 +133,7 @@ struct ConfettiPiece {
     let rotation: Double
 }
 
-
-
-// Confetti
 struct ConfettiView: View {
-    
     
     let orange = Color.confettiOrange
     let teal   = Color.confettiTeal
@@ -225,9 +210,6 @@ struct SquigglePath: Shape {
     }
 }
 
-
-
 #Preview {
     AllRoutinesDoneView()
 }
-

@@ -140,7 +140,13 @@ final class TaskStore {
     func hasTasks(on date: Date) -> Bool {
         tasks.contains { Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
-
+    
+    /// True when the day has at least one task and every task is done.
+    func allDone(on date: Date) -> Bool {
+        let day = tasks(on: date)
+        return !day.isEmpty && day.allSatisfy { $0.isDone }
+    }
+    
     // MARK: Persistence
     
     private func saveTasks() { Self.write(tasks, to: tasksURL) }
